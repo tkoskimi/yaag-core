@@ -10,18 +10,38 @@
 //
 // (c) Tuomas Koskimies, 2018
 
+#ifndef _dbllist_
+#define _dbllist_
+
+// Messages for the diagnostics
+#define DBLL_NEWNULL "New node cannot be Null"
+#define DBLL_POPEMPTY "Client pops en element from the empty list"
+#define DBLL_RELEASENONEMPTYLIST "Releasing non-empty list"
+
 struct Node {
     void *data;
     struct Node *next;
     struct Node *prev;
 };
 
-int add(struct Node** head, void* new_data, size_t new_data_size);
+struct DblLinkedList;
 
-int del(struct Node** head, struct Node* del_data);
+struct DblLinkedList* dbllist_new();
 
-struct Node* first(struct Node** head);
+void dbllist_free( struct DblLinkedList* list );
 
-struct Node* last(struct Node** head);
+struct Node* dbllist_push( struct DblLinkedList* list, void* new_data );
 
-int clr(struct Node** head);
+void* dbllist_pop( struct DblLinkedList *list );
+
+int dbllist_is_empty( struct DblLinkedList *list );
+
+int dbllist_size( struct DblLinkedList *list );
+
+struct Node* dbllist_head( struct DblLinkedList *list );
+
+struct Node* dbllist_tail( struct DblLinkedList *list );
+
+int dbllist_clr( struct DblLinkedList *list );
+
+#endif // _dbllist_

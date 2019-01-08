@@ -1,40 +1,104 @@
 // Doubly Linked List
 //
-// Linked list is a data structure consisting a sequence of nodes. Each node
-// contains data and a reference to the next node in the sequence. The doubly
-// linked list has also a reference pointing to the previous node.
-//
-// The head of the list is the first node. The tail of the list is the last node.
-//
-// The list operations are add, del, first, last and clr.
+// [Implementation details]
 //
 // (c) Tuomas Koskimies, 2018
 
+#include <assert.h>
 #include <stdlib.h>
-#include "../defs.h"
 
-struct Node {
-    void *data;
-    struct Node *next;
-    struct Node *prev;
+#include "./doublyLinkedList.h"
+#include "../defs.h"
+#include "../mem.h"
+
+#define _is_empty(x) ((x)->size == 0)
+
+struct DblLinkedList {
+    int size;
+    struct Node *head;
+    struct Node *tail;
 };
 
-int add(struct Node** head, void* new_data, size_t new_data_size) {
-    return 0;
+struct DblLinkedList* dbllist_new() {
+    struct DblLinkedList *list = (struct DblLinkedList *) mem_malloc( sizeof( struct DblLinkedList ) ); 
+    list->size = 0;
+    list->head = NULL;
+    list->tail = NULL;
+    return list;
 }
 
-int del(struct Node** head, struct Node* del_data){
-    return 0;
+void dbllist_free( struct DblLinkedList* list ) {
+    assert ( _is_empty(list) && DBLL_RELEASENONEMPTYLIST );
+    mem_free(list);
 }
 
-struct Node* first(struct Node** head) {
-    return (*head)->next;
+struct Node* dbllist_push( struct DblLinkedList* list, void* new_data ) {
+    assert( new_data != NULL && DBLL_NEWNULL );
+
+    struct Node *node = (struct Node*) mem_malloc( sizeof( struct Node ) );
+    node->data = new_data;
+    node->next = list->head;
+    node->prev = NULL;
+    list->head = node;
+
+    // Set the tail if the list is empty; the tail will not change after that
+    // if using push function. Otherwise the tail is pointing to the right node,
+    // but the second node will now have a predecessor (hence it is the 2nd).
+    if ( _is_empty(list) ) {
+        list->tail = node;
+    } else {
+        node->next->prev = node;
+    }
+
+    list->size++;
+
+    return node;
 }
 
-struct Node* last(struct Node** head) {
-    return (*head)->prev;
+void* dbllist_pop( struct DblLinkedList *list ) {
+    assert( !_is_empty(list) && DBLL_POPEMPTY );
+
+    if ( !_is_empty(list) ) {
+        struct Node *node = list->head;
+        void *data = node->data;
+        
+        // If the last element is popped, then the list will have no more the
+        // head and tail.
+        if ( list->size == 1 ) {
+            list->head = NULL;
+            list->tail = NULL;
+        } else {
+            list->head = node->next;
+            list->head->prev = NULL;
+        }
+
+        list->size--;
+
+        // We release the node only; releasing the data is out of scope.
+        mem_free(node);
+
+        return data;
+    } else {
+        return NULL;
+    }
 }
 
-int clr(struct Node** head) {
+int dbllist_is_empty( struct DblLinkedList *list ) {
+    return list->size == 0;
+}
+
+int dbllist_size( struct DblLinkedList *list ) {
+    return list->size;
+}
+
+struct Node* dbllist_head( struct DblLinkedList *list ) {
+    return list->head;
+}
+
+struct Node* dbllist_tail( struct DblLinkedList *list ) {
+    return list->tail;
+}
+
+int dbllist_clr( struct DblLinkedList *list ) {
     return 0;
 }
