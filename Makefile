@@ -33,7 +33,10 @@ SRC_MAIN = ./src/main.c
 SRC_MAIN_TEST = ./test/main.test.c
 
 # define the C source files
-SRCS = ./src/mem.c ./src/data_structures/doublyLinkedList.c
+SRCS = \
+	./src/mem.c \
+	./src/data_structures/doublyLinkedList.c \
+	./src/data_structures/quad_tree.c
 SRCS_TEST = ./test/data_structures/doublyLinkedList.test.c
 
 # define the C object files 
@@ -92,7 +95,7 @@ depend: $(SRC_MAIN) $(SRC_MAIN_TEST) $(SRCS) $(SRCS_TEST)
 
 # DO NOT DELETE THIS LINE -- make depend needs it
 
-src/main.o: /usr/include/stdio.h src/./data_structures/doublyLinkedList.h
+src/main.o: /usr/include/stdio.h
 test/main.test.o: /usr/include/setjmp.h /usr/include/features.h
 test/main.test.o: /usr/include/stdc-predef.h
 test/main.test.o: test/./data_structures/doublyLinkedList.test.h
@@ -103,6 +106,10 @@ src/data_structures/doublyLinkedList.o: /usr/include/stdc-predef.h
 src/data_structures/doublyLinkedList.o: /usr/include/stdlib.h
 src/data_structures/doublyLinkedList.o: src/data_structures/./doublyLinkedList.h
 src/data_structures/doublyLinkedList.o: src/defs.h src/mem.h
+src/data_structures/quad_tree.o: /usr/include/assert.h
+src/data_structures/quad_tree.o: /usr/include/features.h
+src/data_structures/quad_tree.o: /usr/include/stdc-predef.h
+src/data_structures/quad_tree.o: /usr/include/stdlib.h src/defs.h src/mem.h
 test/data_structures/doublyLinkedList.test.o: /usr/include/setjmp.h
 test/data_structures/doublyLinkedList.test.o: /usr/include/features.h
 test/data_structures/doublyLinkedList.test.o: /usr/include/stdc-predef.h
