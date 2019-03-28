@@ -42,5 +42,15 @@ Koska lopputuloksena on yksi ajettava tiedosto, niin hakemistorakennetta ei tarv
 
 Aloitan tekemällä yksinkertaisen Makefilen ja katson myöhemmin, tarvitsenko jotain parempaa. Kopioin tiedoston [osoitteesta](https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html#adv). Sitä varten asensin `makedepend` ohjelman.
 
-Torstai, 3.1.2019
+Perjantai, 4.1.2019
 -
+
+Lauantai, 5.1.2019
+-
+1. Hyvä linkitetyn listan katselmointi löytyy osoitteesta https://codereview.stackexchange.com/questions/42600. Suosittelen sen lukemista yleisessä mielessä.
+
+2. Tässä sen taas näkee kuinka monomaaninen julistaminen sotkee vapaata tahdon ilmaisua. Olin määrittelemässä listan rajapintaa. Halusin piilottaa toteutuksen sisäiset rakenteet asiakkaalta. Näin syntyy vähemmän riippuvuuksia, kun asiakkaan koodissa ei ole sisäisten rakenteiden käsittelyä. Tämä on tietysti toivottavaa, mutta unohdin samalla mitä olen tekemässä. Peliä. Ja pelissä suorituskyky on hyvin tärkeä aspekti. Riippumattomuutta luodaan abstraktiokerroksilla ja kerrosten välille tarvitaan hyppykäskyjä. Yhden hyppykäskyn suoritusaika on 16 kellojaksoa, mikä vastaa yhtä pikseliä ruudulla. Aika ei siis riitä abstraktioille.
+
+3. Symmetria ei välttämättä tarkoita, että jos X ja Y ovat toistensa vastaoperaatiot (esim. push ja pop), niin niiden prototyyppi on silloin muotoa, jossa vastinargumenttien tyypit ovat samoja. Esimerkiksi "n Push(x)" ja "x Pop()" ovat symmetrisiä, että "x = Pop(), Push(x)" ja "Push(Pop())"
+
+4. Kysy aina onko vaihtoehtoja. Jos on, joudut perustelemaan miksi teet niin kuin teet.
