@@ -123,10 +123,93 @@ static void pop_to_non_empty(void **state) {
     test_free( dbllist_pop( list ) );
 }
 
-static void multiple_pushes_pops(void **state) {
+static void remove_from_empty(void **state) {
+    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+
+    int *zero = test_malloc( sizeof( int ) );
+
+    *zero = 0;
+
+    assert_int_equal( dbllist_size( list ), 0 );
+    assert_int_equal( dbllist_remove( list, zero ), DBLL_LISTISEMPTY );
+
+    test_free( zero );
 }
 
-static void create_delete(void **state) {
+static void remove_the_first(void **state) {
+    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+
+    int *zero = test_malloc( sizeof( int ) );
+
+    *zero = 0;
+
+    struct Node* node0 = dbllist_push( list, zero );
+
+    assert_int_equal( dbllist_size( list ), 1 );
+    assert_int_equal( dbllist_remove( list, zero ), 0 );
+    assert_int_equal( dbllist_size( list ), 0 );
+    assert_null( dbllist_head( list ) );
+    assert_null( dbllist_tail( list ) );
+
+    test_free( zero );
+}
+
+static void remove_the_last(void **state) {
+    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    int *zero = test_malloc( sizeof( int ) );
+    int *one = test_malloc( sizeof( int ) );
+    int *two = test_malloc( sizeof( int ) );
+
+    *zero = 0;
+    *one = 1;
+    *two = 2;
+
+    struct Node* node0 = dbllist_push( list, zero );
+    struct Node* node1 = dbllist_push( list, one );
+    struct Node* node2 = dbllist_push( list, two );
+
+    assert_int_equal( dbllist_size( list ), 3 );
+    assert_int_equal( dbllist_remove( list, zero ), 0 );
+    assert_int_equal( dbllist_size( list ), 2 );
+    assert_ptr_equal( dbllist_head( list ), node2 );
+    assert_ptr_equal( dbllist_tail( list ), node1 );
+    assert_ptr_equal( node1->prev, node2 );
+    assert_null( node1->next );
+
+    test_free( zero );
+    test_free( dbllist_pop( list ) );
+    test_free( dbllist_pop( list ) );
+}
+
+static void remove_the_middle(void **state) {
+    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    int *zero = test_malloc( sizeof( int ) );
+    int *one = test_malloc( sizeof( int ) );
+    int *two = test_malloc( sizeof( int ) );
+
+    *zero = 0;
+    *one = 1;
+    *two = 2;
+
+    struct Node* node0 = dbllist_push( list, zero );
+    struct Node* node1 = dbllist_push( list, one );
+    struct Node* node2 = dbllist_push( list, two );
+
+    assert_int_equal( dbllist_size( list ), 3 );
+    assert_ptr_equal( node2->next, node1 );
+    assert_ptr_equal( node1->prev, node2 );
+    assert_ptr_equal( node1->next, node0 );
+    assert_ptr_equal( node0->prev, node1 );
+
+    assert_int_equal( dbllist_remove( list, one ), 0 );
+    assert_int_equal( dbllist_size( list ), 2 );
+
+    assert_ptr_equal( node2->next, node0 );
+    assert_ptr_equal( node0->prev, node2 );
+
+    test_free( one );
+    test_free( dbllist_pop( list ) );
+    test_free( dbllist_pop( list ) );
 }
 
 static void clr(void **state) {
@@ -138,7 +221,11 @@ int dbll_test() {
         cmocka_unit_test_setup_teardown( push_to_empty, dbll_setup, dbll_teardown ),
         cmocka_unit_test_setup_teardown( push_to_non_empty, dbll_setup, dbll_teardown ),
         cmocka_unit_test_setup_teardown( pop_to_empty, dbll_setup, dbll_teardown ),
-        cmocka_unit_test_setup_teardown( pop_to_non_empty, dbll_setup, dbll_teardown )
+        cmocka_unit_test_setup_teardown( pop_to_non_empty, dbll_setup, dbll_teardown ),
+        cmocka_unit_test_setup_teardown( remove_from_empty, dbll_setup, dbll_teardown ),
+        cmocka_unit_test_setup_teardown( remove_the_first, dbll_setup, dbll_teardown ),
+        cmocka_unit_test_setup_teardown( remove_the_last, dbll_setup, dbll_teardown ),
+        cmocka_unit_test_setup_teardown( remove_the_middle, dbll_setup, dbll_teardown )
     };
 
     return cmocka_run_group_tests( tests, NULL, NULL );

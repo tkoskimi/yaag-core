@@ -83,6 +83,47 @@ void* dbllist_pop( struct DblLinkedList *list ) {
     }
 }
 
+int dbllist_remove( struct DblLinkedList *list, void *data ) {
+    if ( !_is_empty(list) ) {
+        struct Node *node = list->head;
+
+        while( 1 ) {
+            if ( node->data == data ) {
+                break;
+            }
+            if ( node->next == NULL ) {
+                return DBLL_NOTFOUND; // Not found
+            }
+            node = node->next; // This goes on so the loop will end
+        }
+
+        // If the only element is removed, the list won't have a head or
+        // tail
+        if ( list->size == 1 ) {
+            list->head = NULL;
+            list->tail = NULL;
+        } else if ( list->head == node ) { // The 1st one
+            list->head = node->next;
+            node->next->prev = node->prev;
+        } else if ( node->next == NULL ) { // The last one
+            node->prev->next = NULL;
+            list->tail = node->prev;
+        } else { // Basic case
+            node->prev->next = node->next;
+            node->next->prev = node->prev;
+        }
+
+        list->size--;
+
+        // Release the memory
+        mem_free(node);
+
+        return 0;
+    } else {
+        return DBLL_LISTISEMPTY;
+    }
+};
+
 int dbllist_is_empty( struct DblLinkedList *list ) {
     return list->size == 0;
 }

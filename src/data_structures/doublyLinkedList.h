@@ -18,6 +18,10 @@
 #define DBLL_POPEMPTY "Client pops en element from the empty list"
 #define DBLL_RELEASENONEMPTYLIST "Releasing non-empty list"
 
+// Return values
+#define DBLL_LISTISEMPTY -1
+#define DBLL_NOTFOUND -10
+
 struct Node {
     void *data;
     struct Node *next;
@@ -33,6 +37,8 @@ void dbllist_free( struct DblLinkedList* list );
 struct Node* dbllist_push( struct DblLinkedList* list, void* new_data );
 
 void* dbllist_pop( struct DblLinkedList *list );
+
+int dbllist_remove( struct DblLinkedList *list, void *data );
 
 int dbllist_is_empty( struct DblLinkedList *list );
 
