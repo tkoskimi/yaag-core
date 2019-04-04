@@ -142,7 +142,7 @@ int dbllist_remove( struct DblLinkedList *list, void *data ) {
         // Release the memory
         mem_free(node);
 
-        return 0;
+        return DBLL_SUCCESS;
     } else {
         return DBLL_LISTISEMPTY;
     }

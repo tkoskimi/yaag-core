@@ -19,6 +19,7 @@
 #define DBLL_RELEASENONEMPTYLIST "Releasing non-empty list"
 
 // Return values
+#define DBLL_SUCCESS 0
 #define DBLL_LISTISEMPTY -1
 #define DBLL_NOTFOUND -10
 
