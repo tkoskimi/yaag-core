@@ -36,8 +36,13 @@ SRC_MAIN_TEST = ./test/main.test.c
 SRCS = \
 	./src/mem.c \
 	./src/data_structures/doublyLinkedList.c \
-	./src/data_structures/quad_tree.c
-SRCS_TEST = ./test/data_structures/doublyLinkedList.test.c
+	./src/data_structures/quad_tree.c \
+	./src/data_structures/tree.c
+
+SRCS_TEST = \
+	./test/data_structures/doublyLinkedList.test.c \
+	./test/data_structures/tree.test.c \
+	./test/loaders/lvl_loader.test.c
 
 # define the C object files 
 #
@@ -110,8 +115,13 @@ src/data_structures/quad_tree.o: /usr/include/assert.h
 src/data_structures/quad_tree.o: /usr/include/features.h
 src/data_structures/quad_tree.o: /usr/include/stdc-predef.h
 src/data_structures/quad_tree.o: /usr/include/stdlib.h src/defs.h src/mem.h
+src/data_structures/quad_tree.o: src/data_structures/./quad_tree.h
+src/data_structures/quad_tree.o: src/data_structures/./doublyLinkedList.h
 test/data_structures/doublyLinkedList.test.o: /usr/include/setjmp.h
 test/data_structures/doublyLinkedList.test.o: /usr/include/features.h
 test/data_structures/doublyLinkedList.test.o: /usr/include/stdc-predef.h
 test/data_structures/doublyLinkedList.test.o: /usr/include/stdlib.h src/mem.h
 test/data_structures/doublyLinkedList.test.o: src/data_structures/doublyLinkedList.h
+test/loaders/lvl_loader.test.o: /usr/include/setjmp.h /usr/include/features.h
+test/loaders/lvl_loader.test.o: /usr/include/stdc-predef.h
+test/loaders/lvl_loader.test.o: /usr/include/stdlib.h
