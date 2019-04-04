@@ -1,21 +1,46 @@
+#include <setjmp.h>
 #include <stdarg.h>
 #include <stddef.h>
-#include <setjmp.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <unistd.h>
 #include <cmocka.h>
 
 #include "./data_structures/doublyLinkedList.test.h"
+#include "./data_structures/tree.test.h"
+#include "./loaders/lvl_loader.test.h"
 
-/* A test case that does nothing and succeeds. */
-void null_test_success(void **state) {
-    (void) state; /* unused */
-}
+int main(int argc, char* argv[]) {
+    opterr = 0;
+    char *dirvalue = NULL;
+    int c;
 
-int main(void) {
-    const struct CMUnitTest tests[] = {
-        cmocka_unit_test(null_test_success),
-    };
-
-    dbll_test();
-
-    return cmocka_run_group_tests(tests, NULL, NULL);
+    while ((c = getopt (argc, argv, "d:")) != -1) {
+        switch (c) {
+            case 'd':
+                dirvalue = optarg;
+                break;
+            case '?':
+            if (optopt == 'd')
+                fprintf (\
+                    stderr,\
+                    "Option -%c requires a dir for the assets.\n",\
+                    optopt\
+                );
+            else
+                fprintf (\
+                    stderr,\
+                    "Unknown option character `\\x%x'.\n",\
+                    optopt\
+                );
+                return 1;
+            default:
+                abort ();
+        }
+    }
+	// Tests should be added here.
+	dbll_test();
+    tree_test();
+	lvl_loader_test(dirvalue);
 }
