@@ -36,6 +36,8 @@ void dbllist_free( struct DblLinkedList* list );
 
 struct Node* dbllist_push( struct DblLinkedList* list, void* new_data );
 
+struct Node* dbllist_push_to_end( struct DblLinkedList* list, void* new_data );
+
 void* dbllist_pop( struct DblLinkedList *list );
 
 int dbllist_remove( struct DblLinkedList *list, void *data );

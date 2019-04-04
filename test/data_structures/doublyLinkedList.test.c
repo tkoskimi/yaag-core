@@ -74,6 +74,47 @@ static void push_to_non_empty(void **state) {
     test_free( dbllist_pop( list ) );
 }
 
+static void push_end_to_empty(void **state) {
+    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    int *value = test_malloc( sizeof( int ) );
+
+    // Insert one value
+    *value = 1;
+    struct Node* node = dbllist_push_to_end( list, value );
+
+    assert_false( dbllist_is_empty( list ) );
+    assert_int_equal( dbllist_size( list ), 1 );
+    assert_ptr_equal( dbllist_head( list ), dbllist_tail( list ) );
+    assert_ptr_equal( dbllist_head( list ), node );
+    assert_null( node->next );
+    assert_null( node->prev );
+
+    test_free( dbllist_pop( list ) );
+}
+
+static void push_end_to_non_empty(void **state) {
+    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    int *zero = test_malloc( sizeof( int ) );
+    int *one = test_malloc( sizeof( int ) );
+
+    *zero = 0;
+    *one = 1;
+    struct Node* node0 = dbllist_push_to_end( list, zero );
+    struct Node* node1 = dbllist_push_to_end( list, one );
+
+    assert_false( dbllist_is_empty( list ) );
+    assert_int_equal( dbllist_size( list ), 2 );
+    assert_ptr_equal( dbllist_head( list ), node0 );
+    assert_ptr_equal( dbllist_tail( list ), node1 );
+    assert_ptr_equal( node0->next, node1 );
+    assert_ptr_equal( node1->prev, node0 );
+    assert_null( node0->prev );
+    assert_null( node1->next );
+
+    test_free( dbllist_pop( list ) );
+    test_free( dbllist_pop( list ) );
+}
+
 static void pop_to_empty(void **state) {
     struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
@@ -220,6 +261,8 @@ int dbll_test() {
         cmocka_unit_test_setup_teardown( empty_list, dbll_setup, dbll_teardown ),
         cmocka_unit_test_setup_teardown( push_to_empty, dbll_setup, dbll_teardown ),
         cmocka_unit_test_setup_teardown( push_to_non_empty, dbll_setup, dbll_teardown ),
+        cmocka_unit_test_setup_teardown( push_end_to_empty, dbll_setup, dbll_teardown ),
+        cmocka_unit_test_setup_teardown( push_end_to_non_empty, dbll_setup, dbll_teardown ),
         cmocka_unit_test_setup_teardown( pop_to_empty, dbll_setup, dbll_teardown ),
         cmocka_unit_test_setup_teardown( pop_to_non_empty, dbll_setup, dbll_teardown ),
         cmocka_unit_test_setup_teardown( remove_from_empty, dbll_setup, dbll_teardown ),

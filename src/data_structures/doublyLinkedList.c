@@ -42,12 +42,36 @@ struct Node* dbllist_push( struct DblLinkedList* list, void* new_data ) {
     list->head = node;
 
     // Set the tail if the list is empty; the tail will not change after that
-    // if using push function. Otherwise the tail is pointing to the right node,
-    // but the second node will now have a predecessor (hence it is the 2nd).
+    // if using push function. Otherwise the tail is pointing to the correct
+    // node, but the second node will now have a predecessor (hence it is the
+    // 2nd).
     if ( _is_empty(list) ) {
         list->tail = node;
     } else {
         node->next->prev = node;
+    }
+
+    list->size++;
+
+    return node;
+}
+
+struct Node* dbllist_push_to_end( struct DblLinkedList* list, void* new_data ) {
+    assert( new_data != NULL && DBLL_NEWNULL );
+
+    struct Node *node = (struct Node*) mem_malloc( sizeof( struct Node ) );
+    node->data = new_data;
+    node->next = NULL;
+    node->prev = list->tail;
+    list->tail = node;
+
+    // Set the head if the list is empty; the head will not change after that
+    // if using push_to_end function. Otherwise the head is pointing to the
+    // correct node, but the second last node will now have a successor.
+    if ( _is_empty(list) ) {
+        list->head = node;
+    } else {
+        node->prev->next = node;
     }
 
     list->size++;
