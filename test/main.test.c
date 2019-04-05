@@ -42,5 +42,5 @@ int main(int argc, char* argv[]) {
 	// Tests should be added here.
 	dbll_test();
     tree_test();
-	lvl_loader_test(dirvalue);
+	//lvl_loader_test(dirvalue);
 }
