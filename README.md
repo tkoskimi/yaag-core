@@ -12,4 +12,6 @@ Prerequisites
 
 Coding Style
 -
-This code is following this [coding standard](https://users.ece.cmu.edu/~eno/coding/CCodingStandard.html)
+The code is (loosly) following this [coding standard](https://users.ece.cmu.edu/~eno/coding/CCodingStandard.html)
+
+
