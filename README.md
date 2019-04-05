@@ -14,4 +14,19 @@ Coding Style
 -
 The code is (loosly) following this [coding standard](https://users.ece.cmu.edu/~eno/coding/CCodingStandard.html)
 
+Build
+-
+The project is built in a following way:
 
+1. `$ make clean`
+2. `$ make build`
+
+Test
+-
+If you want to execute the tests, then follow these steps:
+
+1. `$ make clea`
+2. `$ make test`
+3. `$ ./build/yaag`
+
+If you want to add tests for a new module, follow the existing examples. Remember to add the execution of the tests to the `main.test.c`.
