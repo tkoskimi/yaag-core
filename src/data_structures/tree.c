@@ -34,10 +34,10 @@ TNode* tree_remove( TTree *tree, char* path, TNode node ) {
 
 char** tree_split_path( char *path ) {
 
-    int num_of_lvls = 0; // Number of levels in the path
-    int index_curr = 0; // The current index
+    int num_of_lvls = 0; // The number of levels in the path - 1
+    int index_curr = 0; // The current read index
     int index_prev = -1; // The index of the previous '.'
-    int error = 0; // If 0, there is no error; Otherwise <> 0
+    int error = 0; // If 0, there is no errors
 
     char** lvl_names = mem_malloc( sizeof( char* ) * TREE_MAX_DEPTH );
     for ( int i = 0; i < TREE_MAX_DEPTH; i++ ) {
@@ -63,11 +63,12 @@ char** tree_split_path( char *path ) {
             break;
         }
         if ( c == '.' || c == '\0' ) {
-            // If the level has no name, then raise an error
+            // If the level has no name, raise the error
             if ( index_curr == index_prev + 1 ) {
                 error = ERROR_NO_NAME;
                 break;
             }
+            // 'index_curr - index_prev' is the length
             char *lvl_name = mem_malloc( sizeof( char ) * ( index_curr - index_prev ) );
             for ( int i = index_prev, j = 0; i < index_curr; i++, j++ ) {
                 lvl_name[ j ] = path[ i + 1 ];
@@ -90,7 +91,7 @@ char** tree_split_path( char *path ) {
             }
         }
         mem_free( lvl_names );
-#ifdef LOG
+#ifdef LOGGING
         printf("Error when splitting a path %s: %d\n", path, error);
 #endif // DEBUG
         return NULL;

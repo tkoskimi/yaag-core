@@ -4,4 +4,4 @@
 
 #define OS_AMIGA 0
 #define DEBUG 1
-#define LOG 1
+#define LOGGING 1
