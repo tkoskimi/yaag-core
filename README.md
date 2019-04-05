@@ -23,10 +23,10 @@ The project is built in a following way:
 
 Test
 -
-If you want to execute the tests, then follow these steps:
+The tests are executed with these steps:
 
-1. `$ make clea`
+1. `$ make clean`
 2. `$ make test`
 3. `$ ./build/yaag`
 
-If you want to add tests for a new module, follow the existing examples. Remember to add the execution of the tests to the `main.test.c`.
+If you add tests for a new module, follow the existing examples. Remember to append the execution of the tests to the `main.test.c`.
