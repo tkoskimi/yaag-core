@@ -163,6 +163,20 @@ struct Node* dbllist_tail( struct DblLinkedList *list ) {
     return list->tail;
 }
 
-int dbllist_clr( struct DblLinkedList *list ) {
-    return 0;
+void dbllist_clr( struct DblLinkedList *list ) {
+    struct Node *node = NULL;
+    // Remove nodes from the head until the list is empty
+    while( ( node = list->head ) != NULL ) {
+#ifdef PRESERVE_INVARIANTS
+        // If the node is not the last one, update the link.
+        if ( node->next ) {
+            node->next->prev = NULL;
+        }
+#endif
+        list->head = node->next;
+        list->size--;
+        mem_free( node );
+    }
+    // The list is now empty. Set the tail
+    list->tail = NULL;
 }

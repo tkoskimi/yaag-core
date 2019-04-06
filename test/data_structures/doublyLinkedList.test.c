@@ -253,6 +253,31 @@ static void remove_the_middle(void **state) {
     test_free( dbllist_pop( list ) );
 }
 
+static void list_clear(void **state) {
+    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    int *zero = test_malloc( sizeof( int ) );
+    int *one = test_malloc( sizeof( int ) );
+    int *two = test_malloc( sizeof( int ) );
+
+    *zero = 0;
+    *one = 1;
+    *two = 2;
+
+    struct Node* node0 = dbllist_push( list, zero );
+    struct Node* node1 = dbllist_push( list, one );
+    struct Node* node2 = dbllist_push( list, two );
+
+    dbllist_clr( list );
+
+    assert_true( dbllist_is_empty( list ) );
+    assert_null( dbllist_head( list ) );
+    assert_null( dbllist_tail( list ) );
+
+    test_free( zero );
+    test_free( one );
+    test_free( two );
+}
+
 static void clr(void **state) {
 }
 
@@ -268,7 +293,8 @@ int dbll_test() {
         cmocka_unit_test_setup_teardown( remove_from_empty, dbll_setup, dbll_teardown ),
         cmocka_unit_test_setup_teardown( remove_the_first, dbll_setup, dbll_teardown ),
         cmocka_unit_test_setup_teardown( remove_the_last, dbll_setup, dbll_teardown ),
-        cmocka_unit_test_setup_teardown( remove_the_middle, dbll_setup, dbll_teardown )
+        cmocka_unit_test_setup_teardown( remove_the_middle, dbll_setup, dbll_teardown ),
+        cmocka_unit_test_setup_teardown( list_clear, dbll_setup, dbll_teardown ),
     };
 
     return cmocka_run_group_tests( tests, NULL, NULL );

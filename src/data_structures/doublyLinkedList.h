@@ -51,6 +51,6 @@ struct Node* dbllist_head( struct DblLinkedList *list );
 
 struct Node* dbllist_tail( struct DblLinkedList *list );
 
-int dbllist_clr( struct DblLinkedList *list );
+void dbllist_clr( struct DblLinkedList *list );
 
 #endif // _dbllist_
