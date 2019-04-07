@@ -11,6 +11,7 @@
 #include "./doublyLinkedList.h"
 
 // Messages for the diagnostics
+#define TREE_NOROOT "Root does not exist"
 #define TREE_RELEASENONEMPTYLIST "Releasing non-empty tree"
 #define TREE_NEWNULL "New node cannot be Null"
 #define TREE_NOPARENT "Parent does not exist"
@@ -21,10 +22,14 @@
 #define TREE_MAX_DEPTH 8
 
 // Return values
-#define ERROR_INVALID_CHAR  -10
-#define ERROR_NAME_TOO_LONG -15
-#define ERROR_TREE_TOO_DEEP -20
-#define ERROR_NO_NAME       -25
+#define SUCCESS                 0
+#define ERROR_INVALID_CHAR      -10
+#define ERROR_NAME_TOO_LONG     -15
+#define ERROR_TREE_TOO_DEEP     -20
+#define ERROR_NO_NAME           -25
+#define ERROR_TREE_IS_EMPTY     -30
+#define ERROR_NO_PARENT         -35
+#define ERROR_NO_REPLACEMENT    -40
 
 typedef struct {
     char *name;
@@ -47,8 +52,8 @@ void tree_free( TTree* tree );
 //             is the root. The path is like 'a.b.c', where 'a', 'b' and 'c'
 //             are the names of the nodes
 // @param new_data The data to be added to the node
-// @return The address of the new node
-TNode* tree_insert( TTree* tree, char* path, void* new_data );
+// @return The old data [void *] of the tree node
+void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int replace );
 
 // Removes the node from the tree.
 //
@@ -69,5 +74,7 @@ TNode* tree_remove( TTree *tree, char* path, TNode node );
 char** tree_split_path( char *path );
 
 void* tree_del( TTree *tree );
+
+void _clean_up( char** names );
 
 #endif // _tree_
