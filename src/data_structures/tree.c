@@ -135,6 +135,51 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int rep
 }
 
 TNode* tree_find( TTree *tree, char* path ) {
+    assert ( !_is_empty(tree) && TREE_NOROOT );
+
+    // A current node of the tree in this traversal.
+    TNode* tree_node = tree->root;
+
+    // Handle special case.
+    if ( path == NULL ) {
+        return tree_node;
+    }
+
+    // Names of the hierarchy levels of the tree.
+    char** lvl_names = tree_split_path( path );
+    // A name of the current level of the tree.
+    char* lvl_name = NULL;
+    // The index to the lvl_names.
+    int index = 0;
+    // The current child (list) node.
+    struct Node *child = NULL;
+
+    while( index < TREE_MAX_DEPTH && ( lvl_name = lvl_names[ index ] ) != NULL ) {
+        int found = 0;
+        child = dbllist_head( tree_node->children );
+        while( child ) {
+            if ( strcmp( lvl_name, ((TNode *) child->data)->name ) == 0 ) {
+#ifdef LOGGING
+                printf("Node found: %s\n", lvl_name );
+#endif // LOGGING
+                found = 1;
+                break;
+            }
+            child = child->next;
+        }
+
+        if ( !found ) {
+#ifdef LOGGING
+                printf("Error in tree_insert: %d\n", ERROR_NOT_FOUND );
+#endif // LOGGING
+            return NULL;
+        }
+
+        tree_node = (TNode *) child->data;
+        index++;
+    }
+
+    return tree_node;
 }
 
 TNode* tree_remove( TTree *tree, char* path, TNode node ) {

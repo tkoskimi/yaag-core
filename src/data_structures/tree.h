@@ -30,6 +30,7 @@
 #define ERROR_TREE_IS_EMPTY     -30
 #define ERROR_NO_PARENT         -35
 #define ERROR_NO_REPLACEMENT    -40
+#define ERROR_NOT_FOUND    		-45
 
 typedef struct {
     char *name;
@@ -54,6 +55,8 @@ void tree_free( TTree* tree );
 // @param new_data The data to be added to the node
 // @return The old data [void *] of the tree node
 void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int replace );
+
+TNode* tree_find( TTree *tree, char* path );
 
 // Removes the node from the tree.
 //

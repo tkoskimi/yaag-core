@@ -239,6 +239,67 @@ static void insert_node_and_do_replacement(void **state) {
     return;
 }
 
+static void find_a_node_from_2nd_level(void **state) {
+    TTree* tree = ( ( TreeTest * ) *state )->tree;
+
+    TNode *root = (TNode *) test_malloc( sizeof( TNode ) );
+    tree->root = root;
+    tree->root->name = NULL;
+    tree->root->data = NULL;
+    tree->root->children = dbllist_new();
+
+    void* ret_value = NULL;
+    char *path = "a.b";
+    int *zero = test_malloc( sizeof( int ) );
+
+    // Set data
+    *zero = 0;
+
+    ret_value = tree_insert( tree, path, zero, 1, 0 );
+    assert_null( ret_value );
+    assert_string_equal( "a", get_tnode_from_tails( root, 1 )->name );
+    assert_string_equal( "b", get_tnode_from_tails( root, 2 )->name );
+    assert_ptr_equal( zero, get_tnode_from_tails( root, 2 )->data );
+
+    TNode *tree_node = NULL;
+
+    // The root.
+    tree_node = tree_find( tree, NULL );
+    assert_null( tree_node->name );
+    assert_null( tree_node->data );
+    assert_int_equal( 1, dbllist_size( tree_node->children ) );
+
+    // The 1st level.
+    tree_node = tree_find( tree, "a" );
+    assert_string_equal( "a", tree_node->name );
+    assert_null( tree_node->data );
+    assert_int_equal( 1, dbllist_size( tree_node->children ) );
+
+    // The 2nd level.
+    tree_node = tree_find( tree, "a.b" );
+    assert_string_equal( "b", tree_node->name );
+    assert_ptr_equal( zero, tree_node->data );
+    assert_int_equal( 0, dbllist_size( tree_node->children ) );
+
+    // Not found in the 1st level.
+    tree_node = tree_find( tree, "c" );
+    assert_null( tree_node );
+
+    // Not found in the 1st level.
+    tree_node = tree_find( tree, "a.c" );
+    assert_null( tree_node );
+
+    dbllist_clr( get_tnode_from_tails( root, 2 )->children );
+    mem_free( get_tnode_from_tails( root, 2 )->name );
+    dbllist_clr( get_tnode_from_tails( root, 1 )->children );
+    mem_free( get_tnode_from_tails( root, 1 )->name );
+    dbllist_clr( tree->root->children );
+    test_free( zero );
+    test_free( root );
+    tree->root = NULL;
+    return;
+}
+
 static void clr(void **state) {
 }
 
@@ -255,6 +316,7 @@ int tree_test(void) {
         cmocka_unit_test_setup_teardown( insert_node_into_empty_tree, tree_setup, tree_teardown ),
         cmocka_unit_test_setup_teardown( insert_node_into_nonempty_tree, tree_setup, tree_teardown ),
         cmocka_unit_test_setup_teardown( insert_two_nodes, tree_setup, tree_teardown ),
+        cmocka_unit_test_setup_teardown( find_a_node_from_2nd_level, tree_setup, tree_teardown ),
     };
 
     return cmocka_run_group_tests( tests, NULL, NULL );
