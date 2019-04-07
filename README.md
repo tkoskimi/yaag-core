@@ -21,6 +21,8 @@ The project is built in a following way:
 1. `$ make clean`
 2. `$ make build`
 
+You have to ensure that there is neither warnings nor errors during the compilation. All warnings and errors have to be fixed before commits.
+
 Test
 -
 The tests are executed with these steps:
@@ -30,3 +32,5 @@ The tests are executed with these steps:
 3. `$ ./build/yaag`
 
 If you add tests for a new module, follow the existing examples. Remember to append the execution of the tests to the `main.test.c`.
+
+If there is any sign of problem during the execution of the tests, you have to fix it before commits.
