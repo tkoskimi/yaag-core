@@ -167,7 +167,7 @@ void dbllist_clr( struct DblLinkedList *list ) {
     struct Node *node = NULL;
     // Remove nodes from the head until the list is empty
     while( ( node = list->head ) != NULL ) {
-#ifdef PRESERVE_INVARIANTS
+#ifdef PRESERVE_CONSISTENCY
         // If the node is not the last one, update the link.
         if ( node->next ) {
             node->next->prev = NULL;
