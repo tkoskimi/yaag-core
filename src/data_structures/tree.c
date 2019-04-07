@@ -23,7 +23,7 @@ void tree_free( TTree* tree ) {
 void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int replace ) {
     assert ( !_is_empty(tree) && TREE_NOROOT );
 
-    // A current node of the tree
+    // A current node of the tree.
     TNode* tree_node = tree->root;
     // The existing data of a node. This is a value of TNode.data.
     void* old_data = NULL;
@@ -61,7 +61,7 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int rep
     while( !error && index < TREE_MAX_DEPTH && ( lvl_name = lvl_names[ index ] ) != NULL ) {
         // We need this when deciding whether to create a parent or not.
         int is_last = index == TREE_MAX_DEPTH - 1 || lvl_names[ index + 1 ] == NULL;
-        // 1 if ew find the tree node that has a name lvl_name.
+        // 1 if we find the tree node that has a name lvl_name.
         int found = 0;
         // The current list node.
         struct Node *child = dbllist_head( tree_node->children );
@@ -138,16 +138,18 @@ TNode* tree_find( TTree *tree, char* path ) {
 }
 
 TNode* tree_remove( TTree *tree, char* path, TNode node ) {
-    // Split the path
-    // Find the node. If exists, then remove it from the list
 }
 
 char** tree_split_path( char *path ) {
 
-    int num_of_lvls = 0; // The number of levels in the path - 1
-    int index_curr = 0; // The current read index
-    int index_prev = -1; // The index of the previous '.'
-    int error = 0; // If 0, there is no errors
+    // The number of levels in the path - 1.
+    int num_of_lvls = 0;
+    // The current read index.
+    int index_curr = 0;
+    // The index of the previous '.'.
+    int index_prev = -1;
+    // If 0, there is no errors.
+    int error = 0;
 
     char** lvl_names = mem_malloc( sizeof( char* ) * TREE_MAX_DEPTH );
     for ( int i = 0; i < TREE_MAX_DEPTH; i++ ) {
@@ -157,13 +159,13 @@ char** tree_split_path( char *path ) {
     while( 1 ) {
         char c = path[index_curr];
 #ifdef DEBUG
-        // Do the sanity check
+        // Do the sanity check.
         if ( !isalpha(c) && !isdigit(c) && c != '.' && c != '\0' ) {
             error = ERROR_INVALID_CHAR;
             break;
         }
 #endif // DEBUG
-        // '+1' because the last acceptable char is '.', e.g. 'itisamax.'
+        // '+1' because the last acceptable char is '.', e.g. 'itisamax.'.
         if ( index_curr - index_prev > LEVEL_NAME_MAX_LENGTH + 1 ) {
             error = ERROR_NAME_TOO_LONG;
             break;
@@ -173,12 +175,12 @@ char** tree_split_path( char *path ) {
             break;
         }
         if ( c == '.' || c == '\0' ) {
-            // If the level has no name, raise the error
+            // If the level has no name, raise the error.
             if ( index_curr == index_prev + 1 ) {
                 error = ERROR_NO_NAME;
                 break;
             }
-            // 'index_curr - index_prev' is the length
+            // 'index_curr - index_prev' is the length.
             char *lvl_name = mem_malloc( sizeof( char ) * ( index_curr - index_prev ) );
             for ( int i = index_prev, j = 0; i < index_curr; i++, j++ ) {
                 lvl_name[ j ] = path[ i + 1 ];
