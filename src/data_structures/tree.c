@@ -134,14 +134,17 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int rep
     return old_data;
 }
 
-TNode* tree_find( TTree *tree, char* path ) {
+TNode* tree_find( TTree *tree, char* path, struct DblLinkedList **list ) {
     assert ( !_is_empty(tree) && TREE_NOROOT );
 
     // A current node of the tree in this traversal.
     TNode* tree_node = tree->root;
+    // The list where the node is found.
+    struct DblLinkedList *new_list = NULL;
 
     // Handle special case.
     if ( path == NULL ) {
+        *list = tree_node->children;
         return tree_node;
     }
 
@@ -170,19 +173,36 @@ TNode* tree_find( TTree *tree, char* path ) {
 
         if ( !found ) {
 #ifdef LOGGING
-                printf("Error in tree_insert: %d\n", ERROR_NOT_FOUND );
+            printf("Error in tree_insert: %d\n", ERROR_NOT_FOUND );
 #endif // LOGGING
             return NULL;
         }
 
+        new_list = tree_node->children;
         tree_node = (TNode *) child->data;
         index++;
     }
 
+    *list = new_list;
+
     return tree_node;
 }
 
-TNode* tree_remove( TTree *tree, char* path, TNode node ) {
+void* tree_remove( TTree *tree, char* path ) {
+    struct DblLinkedList *list = NULL;
+
+    TNode *tree_node = tree_find( tree, path, &list );
+
+    if ( tree_node != NULL ) {
+        dbllist_remove( list, tree_node );
+    }
+
+    // Release the allocations ...
+    mem_free( tree_node->name );
+    dbllist_free( tree_node->children );
+
+    // ... except the one allocated by the application.
+    return tree_node->data;
 }
 
 char** tree_split_path( char *path ) {

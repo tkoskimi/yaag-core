@@ -262,32 +262,44 @@ static void find_a_node_from_2nd_level(void **state) {
     assert_ptr_equal( zero, get_tnode_from_tails( root, 2 )->data );
 
     TNode *tree_node = NULL;
+    struct DblLinkedList *list = NULL;
 
     // The root.
-    tree_node = tree_find( tree, NULL );
+    tree_node = tree_find( tree, NULL, &list );
     assert_null( tree_node->name );
     assert_null( tree_node->data );
     assert_int_equal( 1, dbllist_size( tree_node->children ) );
+    assert_ptr_equal( list, tree_node->children );
 
     // The 1st level.
-    tree_node = tree_find( tree, "a" );
+    list = NULL;
+    tree_node = tree_find( tree, "a", &list );
+
+    assert_int_equal( 1, dbllist_size( list ) );
     assert_string_equal( "a", tree_node->name );
     assert_null( tree_node->data );
     assert_int_equal( 1, dbllist_size( tree_node->children ) );
+    assert_ptr_equal( list, root->children );
 
     // The 2nd level.
-    tree_node = tree_find( tree, "a.b" );
+    list = NULL;
+    tree_node = tree_find( tree, "a.b", &list );
     assert_string_equal( "b", tree_node->name );
     assert_ptr_equal( zero, tree_node->data );
     assert_int_equal( 0, dbllist_size( tree_node->children ) );
+    assert_ptr_equal( list, get_tnode_from_tails( root, 1 )->children );
 
     // Not found in the 1st level.
-    tree_node = tree_find( tree, "c" );
+    list = NULL;
+    tree_node = tree_find( tree, "c", &list );
     assert_null( tree_node );
+    assert_null( list );
 
     // Not found in the 1st level.
-    tree_node = tree_find( tree, "a.c" );
+    list = NULL;
+    tree_node = tree_find( tree, "a.c", &list );
     assert_null( tree_node );
+    assert_null( list );
 
     dbllist_clr( get_tnode_from_tails( root, 2 )->children );
     mem_free( get_tnode_from_tails( root, 2 )->name );

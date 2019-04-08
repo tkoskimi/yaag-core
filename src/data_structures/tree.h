@@ -53,10 +53,22 @@ void tree_free( TTree* tree );
 //             is the root. The path is like 'a.b.c', where 'a', 'b' and 'c'
 //             are the names of the nodes
 // @param new_data The data to be added to the node
+// @param parents Make parent as needed
+// @param replace Replace old data if exists
 // @return The old data [void *] of the tree node
 void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int replace );
 
-TNode* tree_find( TTree *tree, char* path );
+// Finds a node from the tree
+//
+// @param tree The pointer to a tree where the node is to be inserted
+// @param path A string to define the parent of the node; NULL if the node
+//             is the root. The path is like 'a.b.c', where 'a', 'b' and 'c'
+//             are the names of the nodes
+// @param list The address to the list. The function will return the list where
+//			   the node is stored if the node is found; Otherwise it is not
+//			   modified
+// @return The three node in the path or NULL
+TNode* tree_find( TTree *tree, char* path, struct DblLinkedList **list );
 
 // Removes the node from the tree.
 //
@@ -64,9 +76,8 @@ TNode* tree_find( TTree *tree, char* path );
 // @param path A string to define the parent of the node; NULL if the node
 //             is the root. The path is like 'a.b.c', where 'a', 'b' and 'c'
 //             are the names of the nodes
-// @param node The node to be removed
 // @return The address parent of the node
-TNode* tree_remove( TTree *tree, char* path, TNode node );
+void* tree_remove( TTree *tree, char* path );
 
 // Splits the path in two parts.
 //
