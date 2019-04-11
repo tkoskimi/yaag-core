@@ -70,14 +70,16 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int rep
 // @return The three node in the path or NULL
 TNode* tree_find( TTree *tree, char* path, struct DblLinkedList **list );
 
-// Removes the node from the tree.
+// Removes the node and its subtree from the tree.
 //
 // @param tree The pointer to a tree where the node is to be removed
 // @param path A string to define the parent of the node; NULL if the node
 //             is the root. The path is like 'a.b.c', where 'a', 'b' and 'c'
 //             are the names of the nodes
+// @param free The pointer to a function that releases data members of the
+//			   tree nodes
 // @return The address parent of the node
-void* tree_remove( TTree *tree, char* path );
+void tree_remove( TTree *tree, char* path, void (*free)( void* ) );
 
 // Splits the path in two parts.
 //
@@ -87,7 +89,13 @@ void* tree_remove( TTree *tree, char* path );
 // @return Let the path be 'a.b.c'. Then [0] == 'a' and [1] == 'b.c'
 char** tree_split_path( char *path );
 
-void* tree_del( TTree *tree );
+// Internal function. Removes the node and its subtree from the tree.
+//
+// @param list The pointer to the list that should be removed
+// @param free The pointer to a function that releases data members of the
+//			   tree nodes
+// @return The address parent of the node
+void _tree_remove_subtree( struct DblLinkedList* list, void (*free)( void* ) );
 
 void _clean_up( char** names );
 

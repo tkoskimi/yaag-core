@@ -7,6 +7,7 @@
 
 #include "../../src/data_structures/tree.h"
 #include "../../src/data_structures/doublyLinkedList.h"
+#include "../../src/defs.h"
 #include "../../src/mem.h"
 
 typedef struct {
@@ -136,7 +137,7 @@ static void insert_node_into_empty_tree(void **state) {
     assert_ptr_equal( zero, node->data );
     assert_true( dbllist_is_empty( node->children ) );
 
-    dbllist_clr( tree->root->children );
+    dbllist_clr( tree->root->children, NULL );
     test_free( zero );
     test_free( root );
     tree->root = NULL;
@@ -174,11 +175,11 @@ static void insert_node_into_nonempty_tree(void **state) {
     assert_string_equal( "b", get_tnode_from_tails( root, 2 )->name );
     assert_ptr_equal( zero, get_tnode_from_tails( root, 2 )->data );
 
-    dbllist_clr( get_tnode_from_tails( root, 2 )->children );
+    dbllist_clr( get_tnode_from_tails( root, 2 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 2 )->name );
-    dbllist_clr( get_tnode_from_tails( root, 1 )->children );
+    dbllist_clr( get_tnode_from_tails( root, 1 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 1 )->name );
-    dbllist_clr( tree->root->children );
+    dbllist_clr( tree->root->children, NULL );
     test_free( zero );
     test_free( root );
     tree->root = NULL;
@@ -218,13 +219,13 @@ static void insert_two_nodes(void **state) {
     assert_ptr_equal( zero, get_tnode_from_heads( root, 2 )->data );
     assert_ptr_equal( one, get_tnode_from_tails( root, 2 )->data );
 
-    dbllist_clr( get_tnode_from_tails( root, 2 )->children );
+    dbllist_clr( get_tnode_from_tails( root, 2 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 2 )->name );
-    dbllist_clr( get_tnode_from_heads( root, 2 )->children );
+    dbllist_clr( get_tnode_from_heads( root, 2 )->children, NULL );
     mem_free( get_tnode_from_heads( root, 2 )->name );
-    dbllist_clr( get_tnode_from_tails( root, 1 )->children );
+    dbllist_clr( get_tnode_from_tails( root, 1 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 1 )->name );
-    dbllist_clr( tree->root->children );
+    dbllist_clr( tree->root->children, NULL );
     test_free( one );
     test_free( zero );
     test_free( root );
@@ -301,14 +302,122 @@ static void find_a_node_from_2nd_level(void **state) {
     assert_null( tree_node );
     assert_null( list );
 
-    dbllist_clr( get_tnode_from_tails( root, 2 )->children );
+    dbllist_clr( get_tnode_from_tails( root, 2 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 2 )->name );
-    dbllist_clr( get_tnode_from_tails( root, 1 )->children );
+    dbllist_clr( get_tnode_from_tails( root, 1 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 1 )->name );
-    dbllist_clr( tree->root->children );
+    dbllist_clr( tree->root->children, NULL );
     test_free( zero );
     test_free( root );
     tree->root = NULL;
+    return;
+}
+
+static void clr_data(void *data) {
+    if (data) {
+        test_free( data );
+    }
+}
+static void remove_tree(void **state) {
+    TTree* tree = ( ( TreeTest * ) *state )->tree;
+
+    TNode *root = (TNode *) test_malloc( sizeof( TNode ) );
+    tree->root = root;
+    tree->root->name = NULL;
+    tree->root->data = NULL;
+    tree->root->children = dbllist_new();
+
+    void* ret_value = NULL;
+    char *path = "a.b";
+    int *zero = test_malloc( sizeof( int ) );
+
+    // Set data
+    *zero = 0;
+
+    // Parents flag is on
+    ret_value = tree_insert( tree, path, zero, 1, 0 );
+    TNode* b = get_tnode_from_tails( root, 2 );
+    TNode* a = get_tnode_from_tails( root, 1 );
+
+#ifdef LOGGING
+    printf("Original addresses\n");
+    printf("%s: %lx\n", "zero", (long unsigned int) zero);
+
+    printf("%s: %lx\n", "root", (long unsigned int) root);
+    printf("%s: %lx\n", "root's children", (long unsigned int) root->children);
+    printf("%s: %lx\n", "a", (long unsigned int) a);
+    printf("%s: %lx\n", "a's name", (long unsigned int) a->name);
+    printf("%s: %lx\n", "a's children", (long unsigned int) a->children);
+    printf("%s: %lx\n", "b", (long unsigned int) b);
+    printf("%s: %lx\n", "b's name", (long unsigned int) b->name);
+    printf("%s: %lx\n", "b's children", (long unsigned int) b->children);
+#endif
+
+    assert_null( ret_value );
+
+    tree_remove( tree, NULL, clr_data );
+
+    test_free( root );
+    tree->root = NULL;
+
+    return;
+}
+
+static void remove_subtree(void **state) {
+    TTree* tree = ( ( TreeTest * ) *state )->tree;
+
+    TNode *root = (TNode *) test_malloc( sizeof( TNode ) );
+    tree->root = root;
+    tree->root->name = NULL;
+    tree->root->data = NULL;
+    tree->root->children = dbllist_new();
+
+    char *path = NULL;
+
+    void* ret_value = NULL;
+    path = "a.b";
+    int *zero = test_malloc( sizeof( int ) );
+    *zero = 0;
+    ret_value = tree_insert( tree, path, zero, 1, 0 );
+
+    assert_null( ret_value );
+
+    path = "a.c";
+    int *one = test_malloc( sizeof( int ) );
+    *one = 0;
+    ret_value = tree_insert( tree, path, one, 1, 0 );
+
+    assert_null( ret_value );
+
+    TNode* c = get_tnode_from_heads( root, 2 );
+    TNode* b = get_tnode_from_tails( root, 2 );
+    TNode* a = get_tnode_from_tails( root, 1 );
+
+#ifdef LOGGING
+    printf("Original addresses\n");
+    printf("%s: %lx\n", "zero", (long unsigned int) zero);
+
+    printf("%s: %lx\n", "root", (long unsigned int) root);
+    printf("%s: %lx\n", "root's children", (long unsigned int) root->children);
+    printf("%s: %lx\n", "a", (long unsigned int) a);
+    printf("%s: %lx\n", "a's name", (long unsigned int) a->name);
+    printf("%s: %lx\n", "a's children", (long unsigned int) a->children);
+    printf("%s: %lx\n", "b", (long unsigned int) b);
+    printf("%s: %lx\n", "b's name", (long unsigned int) b->name);
+    printf("%s: %lx\n", "b's children", (long unsigned int) b->children);
+    printf("%s: %lx\n", "c", (long unsigned int) c);
+    printf("%s: %lx\n", "c's name", (long unsigned int) c->name);
+    printf("%s: %lx\n", "c's children", (long unsigned int) c->children);
+#endif
+
+    tree_remove( tree, "a", clr_data );
+
+    assert_int_equal( 0, dbllist_size( root->children ) );
+
+    dbllist_clr( tree->root->children, NULL );
+    test_free( root );
+    tree->root = NULL;
+
     return;
 }
 
@@ -329,6 +438,8 @@ int tree_test(void) {
         cmocka_unit_test_setup_teardown( insert_node_into_nonempty_tree, tree_setup, tree_teardown ),
         cmocka_unit_test_setup_teardown( insert_two_nodes, tree_setup, tree_teardown ),
         cmocka_unit_test_setup_teardown( find_a_node_from_2nd_level, tree_setup, tree_teardown ),
+        cmocka_unit_test_setup_teardown( remove_tree, tree_setup, tree_teardown ),
+        cmocka_unit_test_setup_teardown( remove_subtree, tree_setup, tree_teardown ),
     };
 
     return cmocka_run_group_tests( tests, NULL, NULL );

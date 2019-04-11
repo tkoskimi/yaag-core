@@ -143,6 +143,7 @@ TNode* tree_find( TTree *tree, char* path, struct DblLinkedList **list ) {
     struct DblLinkedList *new_list = NULL;
 
     // Handle special case.
+
     if ( path == NULL ) {
         *list = tree_node->children;
         return tree_node;
@@ -173,7 +174,7 @@ TNode* tree_find( TTree *tree, char* path, struct DblLinkedList **list ) {
 
         if ( !found ) {
 #ifdef LOGGING
-            printf("Error in tree_insert: %d\n", ERROR_NOT_FOUND );
+            printf( "Error in tree_insert: %d\n", ERROR_NOT_FOUND );
 #endif // LOGGING
             return NULL;
         }
@@ -188,21 +189,42 @@ TNode* tree_find( TTree *tree, char* path, struct DblLinkedList **list ) {
     return tree_node;
 }
 
-void* tree_remove( TTree *tree, char* path ) {
+void tree_remove( TTree *tree, char* path, void (*free)( void* ) ) {
     struct DblLinkedList *list = NULL;
 
     TNode *tree_node = tree_find( tree, path, &list );
 
     if ( tree_node != NULL ) {
-        dbllist_remove( list, tree_node );
+        _tree_remove_subtree( list, free );
     }
+}
 
-    // Release the allocations ...
-    mem_free( tree_node->name );
-    dbllist_free( tree_node->children );
-
-    // ... except the one allocated by the application.
-    return tree_node->data;
+void _tree_remove_subtree( struct DblLinkedList* list, void (*free)( void* ) ) {
+    if ( list != NULL ) {
+#ifdef LOGGING
+        printf( "%s: %lx\n", "Removing a list", (long unsigned int) list );
+#endif
+        while( !dbllist_is_empty( list ) ) {
+            TNode* tree_node = (TNode *) dbllist_pop( list );
+#ifdef LOGGING
+            printf( "%s: %lx\n", "Moving to a node", (long unsigned int) tree_node );
+#endif            
+            if ( tree_node->children ) {
+                if ( dbllist_size( tree_node->children ) ){
+                    _tree_remove_subtree( tree_node->children, free );
+                }
+            }
+            if ( tree_node->name ) {
+                mem_free( tree_node->name );
+            }
+            free( tree_node->data );
+        }
+        dbllist_free( list );
+        list = NULL;
+#ifdef LOGGING
+        printf("%s: %lx\n", "The list is released. Exiting", (long unsigned int) list);
+#endif
+    }
 }
 
 char** tree_split_path( char *path ) {
@@ -275,11 +297,6 @@ char** tree_split_path( char *path ) {
     }
 
     return lvl_names;
-}
-
-void* tree_del( TTree *tree ) {
-    // Traverse the tree. Add all the nodes to the list.
-    // Delete nodes from the list.
 }
 
 void _clean_up( char** names ) {
