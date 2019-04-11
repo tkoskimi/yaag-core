@@ -163,7 +163,7 @@ struct Node* dbllist_tail( struct DblLinkedList *list ) {
     return list->tail;
 }
 
-void dbllist_clr( struct DblLinkedList *list ) {
+void dbllist_clr( struct DblLinkedList *list, void (*func)(void *) ) {
     struct Node *node = NULL;
     // Remove nodes from the head until the list is empty
     while( ( node = list->head ) != NULL ) {
@@ -175,6 +175,9 @@ void dbllist_clr( struct DblLinkedList *list ) {
 #endif
         list->head = node->next;
         list->size--;
+        if ( func != NULL ) {
+            func( node->data );
+        }
         mem_free( node );
     }
     // The list is now empty. Set the tail
