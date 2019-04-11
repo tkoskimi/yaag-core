@@ -23,11 +23,11 @@
 #define DBLL_LISTISEMPTY -1
 #define DBLL_NOTFOUND -10
 
-struct Node {
+typedef struct Node {
     void *data;
     struct Node *next;
     struct Node *prev;
-};
+} Node;
 
 struct DblLinkedList;
 
@@ -35,9 +35,9 @@ struct DblLinkedList* dbllist_new();
 
 void dbllist_free( struct DblLinkedList* list );
 
-struct Node* dbllist_push( struct DblLinkedList* list, void* new_data );
+Node* dbllist_push( struct DblLinkedList* list, void* new_data );
 
-struct Node* dbllist_push_to_end( struct DblLinkedList* list, void* new_data );
+Node* dbllist_push_to_end( struct DblLinkedList* list, void* new_data );
 
 void* dbllist_pop( struct DblLinkedList *list );
 
@@ -47,9 +47,9 @@ int dbllist_is_empty( struct DblLinkedList *list );
 
 int dbllist_size( struct DblLinkedList *list );
 
-struct Node* dbllist_head( struct DblLinkedList *list );
+Node* dbllist_head( struct DblLinkedList *list );
 
-struct Node* dbllist_tail( struct DblLinkedList *list );
+Node* dbllist_tail( struct DblLinkedList *list );
 
 void dbllist_clr( struct DblLinkedList *list, void (*func)(void *) );
 

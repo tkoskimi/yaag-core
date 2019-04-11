@@ -64,7 +64,7 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int rep
         // 1 if we find the tree node that has a name lvl_name.
         int found = 0;
         // The current list node.
-        struct Node *child = dbllist_head( tree_node->children );
+        Node *child = dbllist_head( tree_node->children );
         // Children -> +[Node]--------------+ -> ...
         //             | ->data             |
         //             |  +[TNode]--------+ |
@@ -156,7 +156,7 @@ TNode* tree_find( TTree *tree, char* path, struct DblLinkedList **list ) {
     // The index to the lvl_names.
     int index = 0;
     // The current child (list) node.
-    struct Node *child = NULL;
+    Node *child = NULL;
 
     while( index < TREE_MAX_DEPTH && ( lvl_name = lvl_names[ index ] ) != NULL ) {
         int found = 0;

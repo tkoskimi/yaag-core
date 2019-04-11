@@ -17,7 +17,7 @@ typedef struct {
 static TNode *get_tnode_from_heads( TNode *root, int depth ) {
     TNode *node = root;
     for( int i = 0; i < depth; i++ ) {
-        node = (TNode *) ( (struct Node *) dbllist_head( node->children ) )->data;
+        node = (TNode *) ( (Node *) dbllist_head( node->children ) )->data;
     }
     return node;
 }
@@ -25,7 +25,7 @@ static TNode *get_tnode_from_heads( TNode *root, int depth ) {
 static TNode *get_tnode_from_tails( TNode *root, int depth ) {
     TNode *node = root;
     for( int i = 0; i < depth; i++ ) {
-        node = (TNode *) ( (struct Node *) dbllist_tail( node->children ) )->data;
+        node = (TNode *) ( (Node *) dbllist_tail( node->children ) )->data;
     }
     return node;
 }

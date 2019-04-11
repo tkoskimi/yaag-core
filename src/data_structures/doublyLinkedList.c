@@ -15,8 +15,8 @@
 
 struct DblLinkedList {
     int size;
-    struct Node *head;
-    struct Node *tail;
+    Node *head;
+    Node *tail;
 };
 
 struct DblLinkedList* dbllist_new() {
@@ -32,10 +32,10 @@ void dbllist_free( struct DblLinkedList* list ) {
     mem_free(list);
 }
 
-struct Node* dbllist_push( struct DblLinkedList* list, void* new_data ) {
+Node* dbllist_push( struct DblLinkedList* list, void* new_data ) {
     assert( new_data != NULL && DBLL_NEWNULL );
 
-    struct Node *node = (struct Node*) mem_malloc( sizeof( struct Node ) );
+    Node *node = (Node*) mem_malloc( sizeof( Node ) );
     node->data = new_data;
     node->next = list->head;
     node->prev = NULL;
@@ -55,10 +55,10 @@ struct Node* dbllist_push( struct DblLinkedList* list, void* new_data ) {
     return node;
 }
 
-struct Node* dbllist_push_to_end( struct DblLinkedList* list, void* new_data ) {
+Node* dbllist_push_to_end( struct DblLinkedList* list, void* new_data ) {
     assert( new_data != NULL && DBLL_NEWNULL );
 
-    struct Node *node = (struct Node*) mem_malloc( sizeof( struct Node ) );
+    Node *node = (Node*) mem_malloc( sizeof( Node ) );
     node->data = new_data;
     node->next = NULL;
     node->prev = list->tail;
@@ -82,7 +82,7 @@ void* dbllist_pop( struct DblLinkedList *list ) {
     assert( !_is_empty(list) && DBLL_POPEMPTY );
 
     if ( !_is_empty(list) ) {
-        struct Node *node = list->head;
+        Node *node = list->head;
         void *data = node->data;
         
         // If the last element is popped, then the list will have no more the
@@ -108,7 +108,7 @@ void* dbllist_pop( struct DblLinkedList *list ) {
 
 int dbllist_remove( struct DblLinkedList *list, void *data ) {
     if ( !_is_empty(list) ) {
-        struct Node *node = list->head;
+        Node *node = list->head;
 
         while( 1 ) {
             if ( node->data == data ) {
@@ -155,16 +155,16 @@ int dbllist_size( struct DblLinkedList *list ) {
     return list->size;
 }
 
-struct Node* dbllist_head( struct DblLinkedList *list ) {
+Node* dbllist_head( struct DblLinkedList *list ) {
     return list->head;
 }
 
-struct Node* dbllist_tail( struct DblLinkedList *list ) {
+Node* dbllist_tail( struct DblLinkedList *list ) {
     return list->tail;
 }
 
 void dbllist_clr( struct DblLinkedList *list, void (*func)(void *) ) {
-    struct Node *node = NULL;
+    Node *node = NULL;
     // Remove nodes from the head until the list is empty
     while( ( node = list->head ) != NULL ) {
 #ifdef PRESERVE_CONSISTENCY
