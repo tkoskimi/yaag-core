@@ -2,7 +2,7 @@
 //
 // (c) Tuomas Koskimies, 2018
 
-#define OS_AMIGA 0
+#define OS_AMIGA
 #define DEBUG
 //#define LOGGING
 
