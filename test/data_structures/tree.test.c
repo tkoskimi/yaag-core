@@ -170,7 +170,7 @@ static void insert_node_into_nonempty_tree(void **state) {
     // Parents flag is on
 
     ret_value = tree_insert( tree, path, zero, 1 );
-    assert_null( ret_value );
+    assert_ptr_equal( zero, ret_value );
     assert_string_equal( "a", get_tnode_from_tails( root, 1 )->name );
     assert_string_equal( "b", get_tnode_from_tails( root, 2 )->name );
     assert_ptr_equal( zero, get_tnode_from_tails( root, 2 )->data );
@@ -208,10 +208,10 @@ static void insert_two_nodes(void **state) {
     // Parents flag is on
 
     ret_value = tree_insert( tree, path1, zero, 1 );
-    assert_null( ret_value );
+    assert_ptr_equal( zero, ret_value );
     
     ret_value = tree_insert( tree, path2, one, 1 );
-    assert_null( ret_value );
+    assert_ptr_equal( one, ret_value );
 
     assert_string_equal( "a", get_tnode_from_tails( root, 1 )->name );
     assert_string_equal( "b", get_tnode_from_heads( root, 2 )->name );
@@ -257,7 +257,7 @@ static void find_a_node_from_2nd_level(void **state) {
     *zero = 0;
 
     ret_value = tree_insert( tree, path, zero, 1 );
-    assert_null( ret_value );
+    assert_ptr_equal( zero, ret_value );
     assert_string_equal( "a", get_tnode_from_tails( root, 1 )->name );
     assert_string_equal( "b", get_tnode_from_tails( root, 2 )->name );
     assert_ptr_equal( zero, get_tnode_from_tails( root, 2 )->data );
@@ -354,7 +354,7 @@ static void remove_tree(void **state) {
     printf("%s: %lx\n", "b's children", (long unsigned int) b->children);
 #endif
 
-    assert_null( ret_value );
+    assert_ptr_equal( zero, ret_value );
 
     tree_remove( tree, NULL, clr_data );
 
@@ -381,14 +381,14 @@ static void remove_subtree(void **state) {
     *zero = 0;
     ret_value = tree_insert( tree, path, zero, 1 );
 
-    assert_null( ret_value );
+    assert_ptr_equal( zero, ret_value );
 
     path = "a.c";
     int *one = test_malloc( sizeof( int ) );
     *one = 0;
     ret_value = tree_insert( tree, path, one, 1 );
 
-    assert_null( ret_value );
+    assert_ptr_equal( one, ret_value );
 
     TNode* c = get_tnode_from_heads( root, 2 );
     TNode* b = get_tnode_from_tails( root, 2 );

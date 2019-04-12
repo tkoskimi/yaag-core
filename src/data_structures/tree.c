@@ -25,8 +25,6 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents ) {
 
     // A current node of the tree.
     TNode* tree_node = tree->root;
-    // The existing data of a node. This is a value of TNode.data.
-    void* old_data = NULL;
 
     // The special case: Insert data into the root node. Note that we will
     // handle this here in order to avoid memory allocations/releases.
@@ -38,7 +36,7 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents ) {
             return NULL;
         }
         tree_node->data = new_data;
-        return NULL;                
+        return new_data;                
     }
 
     // Names of the levels of the tree.
@@ -120,7 +118,7 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents ) {
 
     mem_free( lvl_names );
 
-    return old_data;
+    return new_data;
 }
 
 TNode* tree_find( TTree *tree, char* path, DblLinkedList **list ) {
