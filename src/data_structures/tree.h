@@ -7,22 +7,11 @@
 // -----
 // The tree and list data structures are not symmetrical:
 //
-//    1. Insertion of a node. The implementation of the list is as simple as
-//       possible. Hence, there is no support for modify the data of the nodes:
-//       if you want to do that, use the head of the list to walk through the
-//       nodes till you find the one you are looking for and modify its data.
-//       On the contrary, the insert function on the tree makes the replacement
-//       of the existing data possible. It is possible that this functionality
-//       is aligned with the functionality of the lists in the later versions,
-//       i.e., you search the node first and then modify it.
-//    1. Removal of a node. When removing a node from the tree, the whole
-//       subtree has to be removed as well. Hence, it is not possible to return
-//       a single node as in the case of lists.
-//    3. Identity of the nodes. In lists, the identity of the node is based on
+//    1. Identity of the nodes. In lists, the identity of the node is based on
 //       the data of the node, whereas the nodes have names in trees. There is
 //       a reason for this: The name of the node is a bit redundant information
 //       when handling lists, because either you have to walk through the list
-//       anyway or keep the list in order (e.g. alphabetical) and implement a
+//       anyway or keep the list in, e.g., alphabetical order and implement a
 //       bit more complex search than a simple walkthrough.
 //
 // Usage examples
@@ -44,7 +33,7 @@
 // Insert a node:
 //
 //    ...
-//    ret_value = tree_insert( tree, "a.b", data, 1, 0 );
+//    ret_value = tree_insert( tree, "a.b", data, 1 );
 //    ...
 //
 // Find a node:
