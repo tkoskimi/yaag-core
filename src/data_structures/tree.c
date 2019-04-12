@@ -20,7 +20,7 @@ void tree_free( TTree* tree ) {
     mem_free( tree );
 }
 
-void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int replace ) {
+void* tree_insert( TTree* tree, char* path, void* new_data, int parents ) {
     assert ( !_is_empty(tree) && TREE_NOROOT );
 
     // A current node of the tree.
@@ -32,15 +32,10 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int rep
     // handle this here in order to avoid memory allocations/releases.
     if ( path == NULL ) {
         if ( tree_node->data ) {
-            if ( replace ) {
-                old_data = tree_node->data;
-                tree_node->data = new_data;
-                return old_data;
-            } else {
 #ifdef LOGGING
-                printf("Error in tree_insert: %d\n", ERROR_NO_REPLACEMENT );
+            printf("Error in tree_insert: %d\n. Use tree_find to modify", ERROR_NO_REPLACEMENT );
 #endif // LOGGING
-            }
+            return NULL;
         }
         tree_node->data = new_data;
         return NULL;                
@@ -89,16 +84,10 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int rep
                 index++;
                 continue;
             }
-            // Handle the case where the child is the last one and we will
-            // replace its data.
-            if ( replace ) {
-                tree_node = (TNode *) child->data;
-                old_data = tree_node->data;
-                tree_node->data = new_data;
-                break;
-            } else {
+            // Handle the case where the child is the last one.
+            if ( tree_node->data ) {
 #ifdef LOGGING
-                printf("Error in tree_insert: %d\n", ERROR_NO_REPLACEMENT );
+                printf("Error in tree_insert: %d\n. Use tree_find to modify", ERROR_NO_REPLACEMENT );
 #endif // LOGGING
                 error = ERROR_NO_REPLACEMENT;
                 break;

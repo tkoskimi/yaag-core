@@ -117,9 +117,8 @@ void tree_free( TTree* tree );
 //             are the names of the nodes
 // @param new_data The data to be added to the node
 // @param parents Make parent as needed
-// @param replace Replace old data if exists
 // @return The old data [void *] of the tree node
-void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int replace );
+void* tree_insert( TTree* tree, char* path, void* new_data, int parents );
 
 // Finds a node from the tree
 //
@@ -152,7 +151,7 @@ void tree_remove( TTree *tree, char* path, void (*free)( void* ) );
 // @return Let the path be 'a.b.c'. Then [0] == 'a' and [1] == 'b.c'
 char** tree_split_path( char *path );
 
-// Internal function. Removes the node and its subtree from the tree.
+// (Internal use only.) Removes the node and its subtree from the tree.
 //
 // @param list The pointer to the list that should be removed
 // @param free The pointer to a function that releases data members of the
