@@ -58,12 +58,12 @@
 // Delete a subtree:
 //
 //    ...
-//    static void release_data(void *data) {
+//    static void  free_data(void *data) {
 //       // Release the data for example
 //    }
 //
 //    ...
-//    tree_remove( tree, "a", release_data );
+//    tree_remove( tree, "a", free_data );
 //    ...
 //
 // @author Tuomas Koskimies
