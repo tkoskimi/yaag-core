@@ -19,9 +19,9 @@
 #define DBLL_RELEASENONEMPTYLIST "Releasing non-empty list"
 
 // Return values
-#define DBLL_SUCCESS 0
-#define DBLL_LISTISEMPTY -1
-#define DBLL_NOTFOUND -10
+#define DBLL_SUCCESS		0
+#define DBLL_LISTISEMPTY	-1
+#define DBLL_NOTFOUND		-10
 
 typedef struct Node {
     void *data;
@@ -29,28 +29,33 @@ typedef struct Node {
     struct Node *prev;
 } Node;
 
-struct DblLinkedList;
+// @todo: This should be moved to the .c file.
+typedef struct DblLinkedList {
+    int size;
+    Node *head;
+    Node *tail;
+} DblLinkedList;
 
-struct DblLinkedList* dbllist_new();
+DblLinkedList* dbllist_new();
 
-void dbllist_free( struct DblLinkedList* list );
+void dbllist_free( DblLinkedList* list );
 
-Node* dbllist_push( struct DblLinkedList* list, void* new_data );
+Node* dbllist_push( DblLinkedList* list, void* new_data );
 
-Node* dbllist_push_to_end( struct DblLinkedList* list, void* new_data );
+Node* dbllist_push_to_end( DblLinkedList* list, void* new_data );
 
-void* dbllist_pop( struct DblLinkedList *list );
+void* dbllist_pop( DblLinkedList *list );
 
-int dbllist_remove( struct DblLinkedList *list, void *data );
+int dbllist_remove( DblLinkedList *list, void *data );
 
-int dbllist_is_empty( struct DblLinkedList *list );
+int dbllist_is_empty( DblLinkedList *list );
 
-int dbllist_size( struct DblLinkedList *list );
+int dbllist_size( DblLinkedList *list );
 
-Node* dbllist_head( struct DblLinkedList *list );
+Node* dbllist_head( DblLinkedList *list );
 
-Node* dbllist_tail( struct DblLinkedList *list );
+Node* dbllist_tail( DblLinkedList *list );
 
-void dbllist_clr( struct DblLinkedList *list, void (*func)(void *) );
+void dbllist_clr( DblLinkedList *list, void (*func)(void *) );
 
 #endif // _dbllist_

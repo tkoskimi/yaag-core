@@ -13,26 +13,20 @@
 
 #define _is_empty(x) ((x)->size == 0)
 
-struct DblLinkedList {
-    int size;
-    Node *head;
-    Node *tail;
-};
-
-struct DblLinkedList* dbllist_new() {
-    struct DblLinkedList *list = (struct DblLinkedList *) mem_malloc( sizeof( struct DblLinkedList ) ); 
+DblLinkedList* dbllist_new() {
+    DblLinkedList *list = (DblLinkedList *) mem_malloc( sizeof( DblLinkedList ) ); 
     list->size = 0;
     list->head = NULL;
     list->tail = NULL;
     return list;
 }
 
-void dbllist_free( struct DblLinkedList* list ) {
+void dbllist_free( DblLinkedList* list ) {
     assert ( _is_empty(list) && DBLL_RELEASENONEMPTYLIST );
     mem_free(list);
 }
 
-Node* dbllist_push( struct DblLinkedList* list, void* new_data ) {
+Node* dbllist_push( DblLinkedList* list, void* new_data ) {
     assert( new_data != NULL && DBLL_NEWNULL );
 
     Node *node = (Node*) mem_malloc( sizeof( Node ) );
@@ -55,7 +49,7 @@ Node* dbllist_push( struct DblLinkedList* list, void* new_data ) {
     return node;
 }
 
-Node* dbllist_push_to_end( struct DblLinkedList* list, void* new_data ) {
+Node* dbllist_push_to_end( DblLinkedList* list, void* new_data ) {
     assert( new_data != NULL && DBLL_NEWNULL );
 
     Node *node = (Node*) mem_malloc( sizeof( Node ) );
@@ -78,7 +72,7 @@ Node* dbllist_push_to_end( struct DblLinkedList* list, void* new_data ) {
     return node;
 }
 
-void* dbllist_pop( struct DblLinkedList *list ) {
+void* dbllist_pop( DblLinkedList *list ) {
     assert( !_is_empty(list) && DBLL_POPEMPTY );
 
     if ( !_is_empty(list) ) {
@@ -106,7 +100,7 @@ void* dbllist_pop( struct DblLinkedList *list ) {
     }
 }
 
-int dbllist_remove( struct DblLinkedList *list, void *data ) {
+int dbllist_remove( DblLinkedList *list, void *data ) {
     if ( !_is_empty(list) ) {
         Node *node = list->head;
 
@@ -147,23 +141,23 @@ int dbllist_remove( struct DblLinkedList *list, void *data ) {
     }
 };
 
-int dbllist_is_empty( struct DblLinkedList *list ) {
+int dbllist_is_empty( DblLinkedList *list ) {
     return list->size == 0;
 }
 
-int dbllist_size( struct DblLinkedList *list ) {
+int dbllist_size( DblLinkedList *list ) {
     return list->size;
 }
 
-Node* dbllist_head( struct DblLinkedList *list ) {
+Node* dbllist_head( DblLinkedList *list ) {
     return list->head;
 }
 
-Node* dbllist_tail( struct DblLinkedList *list ) {
+Node* dbllist_tail( DblLinkedList *list ) {
     return list->tail;
 }
 
-void dbllist_clr( struct DblLinkedList *list, void (*func)(void *) ) {
+void dbllist_clr( DblLinkedList *list, void (*func)(void *) ) {
     Node *node = NULL;
     // Remove nodes from the head until the list is empty
     while( ( node = list->head ) != NULL ) {

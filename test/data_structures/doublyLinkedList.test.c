@@ -8,7 +8,7 @@
 #include "../../src/data_structures/doublyLinkedList.h"
 
 struct DblTest {
-    struct DblLinkedList* list;
+    DblLinkedList* list;
 };
 
 static int dbll_setup(void **state) {
@@ -27,14 +27,14 @@ static int dbll_teardown(void **state) {
 }
 
 static void empty_list(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     assert_null( dbllist_head( list ) );
     assert_null( dbllist_tail( list ) );
     assert_true( dbllist_is_empty( list ) );
 }
 
 static void push_to_empty(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *value = test_malloc( sizeof( int ) );
 
     // Insert one value
@@ -52,7 +52,7 @@ static void push_to_empty(void **state) {
 }
 
 static void push_to_non_empty(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
 
@@ -75,7 +75,7 @@ static void push_to_non_empty(void **state) {
 }
 
 static void push_end_to_empty(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *value = test_malloc( sizeof( int ) );
 
     // Insert one value
@@ -93,7 +93,7 @@ static void push_end_to_empty(void **state) {
 }
 
 static void push_end_to_non_empty(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
 
@@ -116,7 +116,7 @@ static void push_end_to_non_empty(void **state) {
 }
 
 static void pop_to_empty(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
 
     *zero = 0;
@@ -134,7 +134,7 @@ static void pop_to_empty(void **state) {
 }
 
 static void pop_to_non_empty(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
     int *two = test_malloc( sizeof( int ) );
@@ -165,7 +165,7 @@ static void pop_to_non_empty(void **state) {
 }
 
 static void remove_from_empty(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
 
     int *zero = test_malloc( sizeof( int ) );
 
@@ -178,7 +178,7 @@ static void remove_from_empty(void **state) {
 }
 
 static void remove_the_first(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
 
     int *zero = test_malloc( sizeof( int ) );
 
@@ -196,7 +196,7 @@ static void remove_the_first(void **state) {
 }
 
 static void remove_the_last(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
     int *two = test_malloc( sizeof( int ) );
@@ -223,7 +223,7 @@ static void remove_the_last(void **state) {
 }
 
 static void remove_the_middle(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
     int *two = test_malloc( sizeof( int ) );
@@ -254,7 +254,7 @@ static void remove_the_middle(void **state) {
 }
 
 static void list_clear(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
     int *two = test_malloc( sizeof( int ) );
@@ -282,7 +282,7 @@ static void release_node( void* data ) {
 }
 
 static void list_clear_nodes(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
     int *two = test_malloc( sizeof( int ) );

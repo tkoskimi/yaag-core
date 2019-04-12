@@ -134,13 +134,13 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, int rep
     return old_data;
 }
 
-TNode* tree_find( TTree *tree, char* path, struct DblLinkedList **list ) {
+TNode* tree_find( TTree *tree, char* path, DblLinkedList **list ) {
     assert ( !_is_empty(tree) && TREE_NOROOT );
 
     // A current node of the tree in this traversal.
     TNode* tree_node = tree->root;
     // The list where the node is found.
-    struct DblLinkedList *new_list = NULL;
+    DblLinkedList *new_list = NULL;
 
     // Handle special case.
 
@@ -190,7 +190,7 @@ TNode* tree_find( TTree *tree, char* path, struct DblLinkedList **list ) {
 }
 
 void tree_remove( TTree *tree, char* path, void (*free)( void* ) ) {
-    struct DblLinkedList *list = NULL;
+    DblLinkedList *list = NULL;
 
     TNode *tree_node = tree_find( tree, path, &list );
 
@@ -199,7 +199,7 @@ void tree_remove( TTree *tree, char* path, void (*free)( void* ) ) {
     }
 }
 
-void _tree_remove_subtree( struct DblLinkedList* list, void (*free)( void* ) ) {
+void _tree_remove_subtree( DblLinkedList* list, void (*free)( void* ) ) {
     if ( list != NULL ) {
 #ifdef LOGGING
         printf( "%s: %lx\n", "Removing a list", (long unsigned int) list );

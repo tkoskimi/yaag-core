@@ -263,7 +263,7 @@ static void find_a_node_from_2nd_level(void **state) {
     assert_ptr_equal( zero, get_tnode_from_tails( root, 2 )->data );
 
     TNode *tree_node = NULL;
-    struct DblLinkedList *list = NULL;
+    DblLinkedList *list = NULL;
 
     // The root.
     tree_node = tree_find( tree, NULL, &list );
@@ -318,6 +318,7 @@ static void clr_data(void *data) {
         test_free( data );
     }
 }
+
 static void remove_tree(void **state) {
     TTree* tree = ( ( TreeTest * ) *state )->tree;
 
