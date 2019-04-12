@@ -65,8 +65,8 @@ void* dbllist_pop( DblLinkedList *list );
 // @param list The pointer to the list where the node is popped from
 // @param data The pointer to the data of the node. This defines the identity
 //             of the node
-// @return DBL_SUCCESS it the node is removed
-int dbllist_remove( DblLinkedList *list, void *data );
+// @return The pointer to the data of the node
+void* dbllist_delete( DblLinkedList *list, void *data );
 
 // @param list The pointer to the list
 // @return Zero if the list is empty
@@ -84,6 +84,6 @@ Node* dbllist_head( DblLinkedList *list );
 // @return The pointer to the last element of the list
 Node* dbllist_tail( DblLinkedList *list );
 
-void dbllist_clr( DblLinkedList *list, void (*func)(void *) );
+void dbllist_remove( DblLinkedList *list, void (*free)(void *) );
 
 #endif // _dbllist_

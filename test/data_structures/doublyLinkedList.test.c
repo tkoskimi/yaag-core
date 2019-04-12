@@ -172,7 +172,7 @@ static void remove_from_empty(void **state) {
     *zero = 0;
 
     assert_int_equal( dbllist_size( list ), 0 );
-    assert_int_equal( dbllist_remove( list, zero ), DBLL_LISTISEMPTY );
+    assert_ptr_equal( zero, dbllist_delete( list, zero ) );
 
     test_free( zero );
 }
@@ -187,7 +187,7 @@ static void remove_the_first(void **state) {
     struct Node* node0 = dbllist_push( list, zero );
 
     assert_int_equal( dbllist_size( list ), 1 );
-    assert_int_equal( dbllist_remove( list, zero ), 0 );
+    assert_ptr_equal( zero, dbllist_delete( list, zero ) );
     assert_int_equal( dbllist_size( list ), 0 );
     assert_null( dbllist_head( list ) );
     assert_null( dbllist_tail( list ) );
@@ -210,7 +210,7 @@ static void remove_the_last(void **state) {
     struct Node* node2 = dbllist_push( list, two );
 
     assert_int_equal( dbllist_size( list ), 3 );
-    assert_int_equal( dbllist_remove( list, zero ), 0 );
+    assert_ptr_equal( zero, dbllist_delete( list, zero ) );
     assert_int_equal( dbllist_size( list ), 2 );
     assert_ptr_equal( dbllist_head( list ), node2 );
     assert_ptr_equal( dbllist_tail( list ), node1 );
@@ -242,7 +242,7 @@ static void remove_the_middle(void **state) {
     assert_ptr_equal( node1->next, node0 );
     assert_ptr_equal( node0->prev, node1 );
 
-    assert_int_equal( dbllist_remove( list, one ), 0 );
+    assert_ptr_equal( one, dbllist_delete( list, one ) );
     assert_int_equal( dbllist_size( list ), 2 );
 
     assert_ptr_equal( node2->next, node0 );
@@ -267,7 +267,7 @@ static void list_clear(void **state) {
     struct Node* node1 = dbllist_push( list, one );
     struct Node* node2 = dbllist_push( list, two );
 
-    dbllist_clr( list, NULL );
+    dbllist_remove( list, NULL );
 
     assert_true( dbllist_is_empty( list ) );
     assert_null( dbllist_head( list ) );
@@ -295,7 +295,7 @@ static void list_clear_nodes(void **state) {
     struct Node* node1 = dbllist_push( list, one );
     struct Node* node2 = dbllist_push( list, two );
 
-    dbllist_clr( list, release_node );
+    dbllist_remove( list, release_node );
 
     assert_true( dbllist_is_empty( list ) );
     assert_null( dbllist_head( list ) );

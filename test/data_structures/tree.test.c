@@ -137,7 +137,7 @@ static void insert_node_into_empty_tree(void **state) {
     assert_ptr_equal( zero, node->data );
     assert_true( dbllist_is_empty( node->children ) );
 
-    dbllist_clr( tree->root->children, NULL );
+    dbllist_remove( tree->root->children, NULL );
     test_free( zero );
     test_free( root );
     tree->root = NULL;
@@ -175,11 +175,11 @@ static void insert_node_into_nonempty_tree(void **state) {
     assert_string_equal( "b", get_tnode_from_tails( root, 2 )->name );
     assert_ptr_equal( zero, get_tnode_from_tails( root, 2 )->data );
 
-    dbllist_clr( get_tnode_from_tails( root, 2 )->children, NULL );
+    dbllist_remove( get_tnode_from_tails( root, 2 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 2 )->name );
-    dbllist_clr( get_tnode_from_tails( root, 1 )->children, NULL );
+    dbllist_remove( get_tnode_from_tails( root, 1 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 1 )->name );
-    dbllist_clr( tree->root->children, NULL );
+    dbllist_remove( tree->root->children, NULL );
     test_free( zero );
     test_free( root );
     tree->root = NULL;
@@ -219,13 +219,13 @@ static void insert_two_nodes(void **state) {
     assert_ptr_equal( zero, get_tnode_from_heads( root, 2 )->data );
     assert_ptr_equal( one, get_tnode_from_tails( root, 2 )->data );
 
-    dbllist_clr( get_tnode_from_tails( root, 2 )->children, NULL );
+    dbllist_remove( get_tnode_from_tails( root, 2 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 2 )->name );
-    dbllist_clr( get_tnode_from_heads( root, 2 )->children, NULL );
+    dbllist_remove( get_tnode_from_heads( root, 2 )->children, NULL );
     mem_free( get_tnode_from_heads( root, 2 )->name );
-    dbllist_clr( get_tnode_from_tails( root, 1 )->children, NULL );
+    dbllist_remove( get_tnode_from_tails( root, 1 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 1 )->name );
-    dbllist_clr( tree->root->children, NULL );
+    dbllist_remove( tree->root->children, NULL );
     test_free( one );
     test_free( zero );
     test_free( root );
@@ -302,11 +302,11 @@ static void find_a_node_from_2nd_level(void **state) {
     assert_null( tree_node );
     assert_null( list );
 
-    dbllist_clr( get_tnode_from_tails( root, 2 )->children, NULL );
+    dbllist_remove( get_tnode_from_tails( root, 2 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 2 )->name );
-    dbllist_clr( get_tnode_from_tails( root, 1 )->children, NULL );
+    dbllist_remove( get_tnode_from_tails( root, 1 )->children, NULL );
     mem_free( get_tnode_from_tails( root, 1 )->name );
-    dbllist_clr( tree->root->children, NULL );
+    dbllist_remove( tree->root->children, NULL );
     test_free( zero );
     test_free( root );
     tree->root = NULL;
@@ -415,7 +415,7 @@ static void remove_subtree(void **state) {
 
     assert_int_equal( 0, dbllist_size( root->children ) );
 
-    dbllist_clr( tree->root->children, NULL );
+    dbllist_remove( tree->root->children, NULL );
     test_free( root );
     tree->root = NULL;
 

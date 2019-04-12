@@ -100,7 +100,7 @@ void* dbllist_pop( DblLinkedList *list ) {
     }
 }
 
-int dbllist_remove( DblLinkedList *list, void *data ) {
+void* dbllist_delete( DblLinkedList *list, void *data ) {
     if ( !_is_empty(list) ) {
         Node *node = list->head;
 
@@ -109,7 +109,7 @@ int dbllist_remove( DblLinkedList *list, void *data ) {
                 break;
             }
             if ( node->next == NULL ) {
-                return DBLL_NOTFOUND; // Not found
+                return NULL; // Not found
             }
             node = node->next; // This goes on so the loop will end
         }
@@ -135,9 +135,9 @@ int dbllist_remove( DblLinkedList *list, void *data ) {
         // Release the memory
         mem_free(node);
 
-        return DBLL_SUCCESS;
+        return data;
     } else {
-        return DBLL_LISTISEMPTY;
+        return NULL;
     }
 };
 
@@ -157,7 +157,7 @@ Node* dbllist_tail( DblLinkedList *list ) {
     return list->tail;
 }
 
-void dbllist_clr( DblLinkedList *list, void (*func)(void *) ) {
+void dbllist_remove( DblLinkedList *list, void (*free)(void *) ) {
     Node *node = NULL;
     // Remove nodes from the head until the list is empty
     while( ( node = list->head ) != NULL ) {
@@ -169,8 +169,8 @@ void dbllist_clr( DblLinkedList *list, void (*func)(void *) ) {
 #endif
         list->head = node->next;
         list->size--;
-        if ( func != NULL ) {
-            func( node->data );
+        if ( free != NULL ) {
+            free( node->data );
         }
         mem_free( node );
     }
