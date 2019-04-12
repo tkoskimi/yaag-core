@@ -40,20 +40,48 @@ DblLinkedList* dbllist_new();
 
 void dbllist_free( DblLinkedList* list );
 
+// Inserts a new node at the beginning of the list
+//
+// @param list The pointer to the list where the node is pushed into
+// @param new_data The data of the node
+// @return The newly inserted node
 Node* dbllist_push( DblLinkedList* list, void* new_data );
 
+// Inserts a new node at the end of the list
+//
+// @param list The pointer to the list where the node is pushed into
+// @param new_data The data of the node
+// @return The newly inserted node
 Node* dbllist_push_to_end( DblLinkedList* list, void* new_data );
 
+// Pops the first node from the list
+//
+// @param list The pointer to the list where the node is popped from
+// @return The pointer to the node, or NULL
 void* dbllist_pop( DblLinkedList *list );
 
+// Removes the node from the list
+//
+// @param list The pointer to the list where the node is popped from
+// @param data The pointer to the data of the node. This defines the identity
+//             of the node
+// @return DBL_SUCCESS it the node is removed
 int dbllist_remove( DblLinkedList *list, void *data );
 
+// @param list The pointer to the list
+// @return Zero if the list is empty
 int dbllist_is_empty( DblLinkedList *list );
 
+// @param list The pointer to the list
+// @return The size of the list
 int dbllist_size( DblLinkedList *list );
 
+// @param list The pointer to the list
+// @return The pointer to the first element of the list
 Node* dbllist_head( DblLinkedList *list );
 
+// @param list The pointer to the list
+// @return The pointer to the last element of the list
 Node* dbllist_tail( DblLinkedList *list );
 
 void dbllist_clr( DblLinkedList *list, void (*func)(void *) );
