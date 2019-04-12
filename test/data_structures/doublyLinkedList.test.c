@@ -171,8 +171,8 @@ static void remove_from_empty(void **state) {
 
     *zero = 0;
 
-    assert_int_equal( dbllist_size( list ), 0 );
-    assert_ptr_equal( zero, dbllist_delete( list, zero ) );
+    assert_int_equal( 0, dbllist_size( list ) );
+    assert_null( dbllist_delete( list, zero ) );
 
     test_free( zero );
 }
