@@ -74,15 +74,15 @@
 #define TREE_MAX_DEPTH 8
 
 // Return values
-#define SUCCESS					0
-#define ERROR_INVALID_CHAR		-10
-#define ERROR_NAME_TOO_LONG		-15
-#define ERROR_TREE_TOO_DEEP		-20
-#define ERROR_NO_NAME			-25
-#define ERROR_TREE_IS_EMPTY		-30
-#define ERROR_NO_PARENT			-35
-#define ERROR_NO_REPLACEMENT	-40
-#define ERROR_NOT_FOUND			-45
+#define SUCCESS                 0
+#define ERROR_INVALID_CHAR      -10
+#define ERROR_NAME_TOO_LONG     -15
+#define ERROR_TREE_TOO_DEEP     -20
+#define ERROR_NO_NAME           -25
+#define ERROR_TREE_IS_EMPTY     -30
+#define ERROR_NO_PARENT         -35
+#define ERROR_NO_REPLACEMENT    -40
+#define ERROR_NOT_FOUND         -45
 
 typedef struct {
     char *name;
@@ -116,8 +116,8 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents );
 //             is the root. The path is like 'a.b.c', where 'a', 'b' and 'c'
 //             are the names of the nodes
 // @param list The address to the list. The function will return the list where
-//			   the node is stored if the node is found; Otherwise it is not
-//			   modified
+//             the node is stored if the node is found; Otherwise it is not
+//             modified
 // @return The three node in the path or NULL
 TNode* tree_find( TTree *tree, char* path, DblLinkedList **list );
 
@@ -128,7 +128,7 @@ TNode* tree_find( TTree *tree, char* path, DblLinkedList **list );
 //             is the root. The path is like 'a.b.c', where 'a', 'b' and 'c'
 //             are the names of the nodes
 // @param free The pointer to a function that releases data members of the
-//			   tree nodes
+//             tree nodes
 // @return The address parent of the node
 void tree_remove( TTree *tree, char* path, void (*free)( void* ) );
 
@@ -140,13 +140,23 @@ void tree_remove( TTree *tree, char* path, void (*free)( void* ) );
 // @return Let the path be 'a.b.c'. Then [0] == 'a' and [1] == 'b.c'
 char** tree_split_path( char *path );
 
+// @param tree The pointer to a tree that will be returned as a list
+// @return A list of the nodes of the tree
+DblLinkedList* tree_to_list( TTree* tree );
+
 // (Internal use only.) Removes the node and its subtree from the tree.
 //
 // @param list The pointer to the list that should be removed
 // @param free The pointer to a function that releases data members of the
-//			   tree nodes
+//             tree nodes
 // @return The address parent of the node
 void _tree_remove_subtree( DblLinkedList* list, void (*free)( void* ) );
+
+// (Internal use only.) Appends recursively tree nodes to the list.
+//
+// @param list The pointer to the list of tree nodes in the tree
+// @param new_list The pointer to the list of the tree nodes
+void _tree_to_list( DblLinkedList* list, DblLinkedList* new_list );
 
 void _clean_up( char** names );
 

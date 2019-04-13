@@ -422,6 +422,60 @@ static void remove_subtree(void **state) {
     return;
 }
 
+static void tree_2_list(void **state) {
+    TTree* tree = ( ( TreeTest * ) *state )->tree;
+
+    int *minus_one = test_malloc( sizeof( int ) );
+    *minus_one = -1;
+
+    TNode *root = (TNode *) test_malloc( sizeof( TNode ) );
+    tree->root = root;
+    tree->root->name = NULL;
+    tree->root->data = minus_one;
+    tree->root->children = dbllist_new();
+
+    char *path = NULL;
+    void* ret_value = NULL;
+
+    path = "a";
+    int *zero = test_malloc( sizeof( int ) );
+    *zero = 0;
+    ret_value = tree_insert( tree, path, zero, 1 );
+
+    assert_ptr_equal( zero, ret_value );
+
+    path = "a.b";
+    int *one = test_malloc( sizeof( int ) );
+    *one = 1;
+    ret_value = tree_insert( tree, path, one, 1 );
+
+    assert_ptr_equal( one, ret_value );
+
+    path = "a.c";
+    int *two = test_malloc( sizeof( int ) );
+    *two = 2;
+    ret_value = tree_insert( tree, path, two, 1 );
+
+    assert_ptr_equal( two, ret_value );
+
+    DblLinkedList *list = tree_to_list( tree );
+
+    assert_int_equal( 4, dbllist_size( list ) );
+
+    assert_int_equal( -1, *( (int * ) ( (TNode *) ( dbllist_head(list)->data ) )->data ) );
+    assert_int_equal( 0, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->data ) )->data ) );
+    assert_int_equal( 1, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->next->data ) )->data ) );
+    assert_int_equal( 2, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->next->next->data ) )->data ) );
+
+    // Remove whole tree.
+    mem_free( list );
+    tree_remove( tree, NULL, clr_data );
+    test_free( root );
+    tree->root = NULL;
+
+    return;
+}
+
 static void clr(void **state) {
 }
 
@@ -441,6 +495,7 @@ int tree_test(void) {
         cmocka_unit_test_setup_teardown( find_a_node_from_2nd_level, tree_setup, tree_teardown ),
         cmocka_unit_test_setup_teardown( remove_tree, tree_setup, tree_teardown ),
         cmocka_unit_test_setup_teardown( remove_subtree, tree_setup, tree_teardown ),
+        cmocka_unit_test_setup_teardown( tree_2_list, tree_setup, tree_teardown ),
     };
 
     return cmocka_run_group_tests( tests, NULL, NULL );

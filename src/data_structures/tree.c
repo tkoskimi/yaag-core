@@ -184,6 +184,8 @@ void tree_remove( TTree *tree, char* path, void (*free)( void* ) ) {
     if ( tree_node != NULL ) {
         _tree_remove_subtree( list, free );
     }
+
+    free( tree_node->data );
 }
 
 void _tree_remove_subtree( DblLinkedList* list, void (*free)( void* ) ) {
@@ -284,6 +286,37 @@ char** tree_split_path( char *path ) {
     }
 
     return lvl_names;
+}
+
+DblLinkedList* tree_to_list( TTree* tree ) {
+    // A current node of the tree in this traversal.
+    TNode* tree_node = tree->root;
+    // The list where the node is found.
+    DblLinkedList *new_list = dbllist_new();
+
+    if ( tree_node ) {
+        // Add the root to the list.
+        dbllist_push_to_end( new_list, tree_node );
+        // Handle all the children.
+        if ( tree_node->children ) {
+            _tree_to_list( tree_node->children, new_list );
+        }
+    }
+
+    return new_list;
+}
+
+void _tree_to_list( DblLinkedList* list, DblLinkedList* new_list ) {
+    if ( dbllist_size( list ) ) {
+        Node *node = dbllist_head( list );
+        while( node ) {
+            dbllist_push_to_end( new_list, node->data );
+            if ( ( (TNode *) node->data )->children ) {
+                _tree_to_list( ( (TNode *) node->data )->children, new_list );
+            }
+            node = node->next;
+        }
+    }
 }
 
 void _clean_up( char** names ) {
