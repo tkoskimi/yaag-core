@@ -43,6 +43,7 @@ An example about a debugging session:
     $ make test
     $ gdb ./build/yaag
     (gdb) break tree.c:_tree_remove_subtree
+    (gdb) run
     (gdb) n
     (gdb) ...
     (gdb) quit
