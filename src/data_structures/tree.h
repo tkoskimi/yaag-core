@@ -111,7 +111,7 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents );
 
 // Finds a node from the tree
 //
-// @param tree The pointer to a tree where the node is to be inserted
+// @param tree The pointer to a tree where the node is searched from
 // @param path A string to define the parent of the node; NULL if the node
 //             is the root. The path is like 'a.b.c', where 'a', 'b' and 'c'
 //             are the names of the nodes
@@ -123,7 +123,7 @@ TNode* tree_find( TTree *tree, char* path, DblLinkedList **list );
 
 // Removes the node and its subtree from the tree.
 //
-// @param tree The pointer to a tree where the node is to be removed
+// @param tree The pointer to a tree where the node is removed from
 // @param path A string to define the parent of the node; NULL if the node
 //             is the root. The path is like 'a.b.c', where 'a', 'b' and 'c'
 //             are the names of the nodes
