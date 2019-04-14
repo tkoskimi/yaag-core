@@ -458,14 +458,22 @@ static void tree_2_list(void **state) {
 
     assert_ptr_equal( two, ret_value );
 
+    path = "a.b.d";
+    int *three = test_malloc( sizeof( int ) );
+    *three = 3;
+    ret_value = tree_insert( tree, path, three, 1 );
+
+    assert_ptr_equal( three, ret_value );
+
     DblLinkedList *list = tree_to_list( tree );
 
-    assert_int_equal( 4, dbllist_size( list ) );
+    assert_int_equal( 5, dbllist_size( list ) );
 
     assert_int_equal( -1, *( (int * ) ( (TNode *) ( dbllist_head(list)->data ) )->data ) );
     assert_int_equal( 0, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->data ) )->data ) );
     assert_int_equal( 1, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->next->data ) )->data ) );
-    assert_int_equal( 2, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->next->next->data ) )->data ) );
+    assert_int_equal( 3, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->next->next->data ) )->data ) );
+    assert_int_equal( 2, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->next->next->next->data ) )->data ) );
 
     // Remove whole tree.
     mem_free( list );
