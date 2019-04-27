@@ -40,8 +40,8 @@ QStruct* quad_new_and_init(
     q->qtree = tree_new();
     q->x0 = x0;
     q->y0 = y0;
-    q->x1 = ( 1 << dim_in_bits ) - 1 + x0;
-    q->y1 = ( 1 << dim_in_bits ) - 1 + y0;
+    q->x1 = ( 1 << dim_in_bits ) + x0 - 1;
+    q->y1 = ( 1 << dim_in_bits ) + y0 - 1;
     q->dim = dim_in_bits;
     q->depth = depth_of_qtree;
     return q;
@@ -60,12 +60,19 @@ int quad_point_index( QStruct* q, unsigned int x0, unsigned int y0 ) {
     if ( x0 > q->x1 || y0 > q->y1 ) {
         return 0;
     }
+
     int dim = q->dim;
     int depth = q->depth;
-    int x0o = x0 - q->x0;
-    int y0o = y0 - q->y0;
-    int x0s = x0o >> ( dim - depth );
-    int y0s = y0o >> ( dim - depth );
+    int x0s = ( x0 - q->x0 ) >> ( dim - depth );
+    int y0s = ( y0 - q->y0 ) >> ( dim - depth );
+    // The index will be as follows:
+    //
+    // MSB                         LSB
+    //    ...+-----+-----+-----+-----+
+    //    ...|y0s.2|x0s.2|y0s.1|x0s.1|
+    //    ...+-----+-----+-----+-----+
+    //
+    // For example, if x0s == 0x2 and y0s == 0x3, the index is b1011 == 0xb
     for ( int i = 0; i < depth; i++ ) {
         index += ( ( x0s & ( 1 << i ) ) << i + 1 ) + ( ( y0s & ( 1 << i ) ) << i );
     }
