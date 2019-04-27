@@ -1,0 +1,1 @@
+int quad_test();

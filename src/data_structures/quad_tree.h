@@ -7,70 +7,68 @@
 //
 // The head of the list is the first node. The tail of the list is the last node.
 //
-// The operations are insert and del.
-//
 // (c) Tuomas Koskimies, 2019
 
 #ifndef _quadtree_
 #define _quadtree_
 
+#include <limits.h>
 #include "./doublyLinkedList.h"
+#include "./tree.h"
 
 // Messages for the diagnostics
-#define QUAD_NEWNULL "New node cannot be Null"
-#define QUAD_RELEASENONEMPTYLIST "Releasing non-empty tree"
 #define QUAD_TOO_BIG "Box is bigger than the region"
 #define QUAD_NONPOSITIVE_DIMENSIONS "Dimenstions must be positive"
-#define QUAD_TREE_NULL "Tree must be non-null"
 #define QUAD_BOX_POS_ORIENTATION "Bounding box must have negative orientation"
 
-#define REGION_WIDTH 2^16
-#define REGION_HEIGHT 2^16
-#define ORIGO_X 0
-#define ORIGO_Y 0
-#define MIN_SIZE 32
+#define REGION_DIM_IN_BITS    10
+#define DEPTH_OF_QTREE        3 
 
-// The problem is as follows. Assume a set of rectangles in a world coordinate system,
-// namely {R}. We want to know which one of them intersects a given a rectangle R.
+typedef struct {
+    TTree *qtree;
+    unsigned int x0;
+    unsigned int y0;
+    unsigned int x1;
+    unsigned int y1;
+    unsigned int dim;
+    unsigned int depth;
+} QStruct;
 
-// Let's assume that we have a complete quad tree. We take the R and find all the rectangles that
-// are not located into separate partitions. Two rectangles are in a separate partition if they do
-// not have a common ancestor.
+unsigned int _bit_mask_011(unsigned int x);
 
-// How do you know that two rectangles have a common ancestor? One has to traverse the tree. If
-// gets the rectangles Rn1, Rn2, ... from the level n, and R(n+1)1, R(n+1)2, ... on the level n+1,
-// then the intersections between Rn1, Rn2, 
+unsigned int _bit_mask_010(unsigned int x, unsigned int y);
 
-// Depth-first search is the one here. You will get one subtree at time. You will have
-// 
+// Creates a new array of QNodes
+QStruct* quad_new();
 
-//
+// Creates a new array of QNodes
+QStruct* quad_new_and_init(
+    unsigned int x0,
+    unsigned int y0,
+    unsigned int dim_in_bits,
+    unsigned int depth_of_qtree );
 
-struct QNode {
-    int index;
-    void* boxes[10];
-    struct QNode *tl;
-    struct QNode *tr;
-    struct QNode *bl;
-    struct QNode *br;
-};
+// Releases the array
+void quad_free( QStruct *q );
 
-struct QTree;
+int quad_point_index( QStruct* qstruct, unsigned int x0, unsigned int y0 );
 
-struct QTree* quad_new();
+// Inserts a new node to the array
+// QNode* quad_insert_rcrsv( QArray* tree, void* new_data, int x0, int y0, int x1, int y1 );
 
-void quad_free( struct QTree* tree );
+// QNode* _quad_insert_rcrsv( QNode* node, void* new_data, int x0, int y0, int x1, int y1, int tl_x, int tl_y, int br_x, int br_y, int d );
 
-struct QNode* quad_insert_rcrsv( struct QTree* tree, void* new_data, int x0, int y0, int x1, int y1 );
+// QNode* new_qnode();
 
-struct QNode* _quad_insert_rcrsv( struct QNode* node, void* new_data, int x0, int y0, int x1, int y1, int tl_x, int tl_y, int br_x, int br_y, int d );
+// int _get_quad( int mp_x, int mp_y, int x, int y );
 
-struct QNode* new_qnode();
+// void quad_del_subtree();
 
-int _get_quad( int mp_x, int mp_y, int x, int y );
+// void* quad_del( QArray *tree, void* data );
 
-void quad_del_subtree();
+// // Deletes the node from the array
 
-void* quad_del( struct QTree *tree, void* data );
+// // @return The index of the array of the game object
+// int quad_index( int x0, int y0, int x1, int y1 );
 
 #endif // _quadtree_

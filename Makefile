@@ -42,6 +42,7 @@ SRCS = \
 SRCS_TEST = \
 	./test/data_structures/doublyLinkedList.test.c \
 	./test/data_structures/tree.test.c \
+	./test/data_structures/quadTree.test.c \
 	./test/loaders/lvl_loader.test.c
 
 # define the C object files 
@@ -102,26 +103,62 @@ depend: $(SRC_MAIN) $(SRC_MAIN_TEST) $(SRCS) $(SRCS_TEST)
 
 src/main.o: /usr/include/stdio.h
 test/main.test.o: /usr/include/setjmp.h /usr/include/features.h
-test/main.test.o: /usr/include/stdc-predef.h
+test/main.test.o: /usr/include/stdc-predef.h /usr/include/stdio.h
+test/main.test.o: /usr/include/stdlib.h /usr/include/alloca.h
+test/main.test.o: /usr/include/unistd.h
 test/main.test.o: test/./data_structures/doublyLinkedList.test.h
-src/mem.o: /usr/include/stdlib.h
+test/main.test.o: test/./data_structures/quadTree.test.h
+test/main.test.o: test/./data_structures/tree.test.h
+test/main.test.o: test/./loaders/lvl_loader.test.h
+src/mem.o: /usr/include/stdlib.h /usr/include/alloca.h
+src/mem.o: /usr/include/features.h /usr/include/stdc-predef.h
 src/data_structures/doublyLinkedList.o: /usr/include/assert.h
 src/data_structures/doublyLinkedList.o: /usr/include/features.h
 src/data_structures/doublyLinkedList.o: /usr/include/stdc-predef.h
 src/data_structures/doublyLinkedList.o: /usr/include/stdlib.h
+src/data_structures/doublyLinkedList.o: /usr/include/alloca.h
 src/data_structures/doublyLinkedList.o: src/data_structures/./doublyLinkedList.h
 src/data_structures/doublyLinkedList.o: src/defs.h src/mem.h
 src/data_structures/quad_tree.o: /usr/include/assert.h
 src/data_structures/quad_tree.o: /usr/include/features.h
 src/data_structures/quad_tree.o: /usr/include/stdc-predef.h
-src/data_structures/quad_tree.o: /usr/include/stdlib.h src/defs.h src/mem.h
+src/data_structures/quad_tree.o: /usr/include/limits.h /usr/include/stdlib.h
+src/data_structures/quad_tree.o: /usr/include/alloca.h src/defs.h src/mem.h
 src/data_structures/quad_tree.o: src/data_structures/./quad_tree.h
 src/data_structures/quad_tree.o: src/data_structures/./doublyLinkedList.h
+src/data_structures/quad_tree.o: src/data_structures/././tree.h
+src/data_structures/tree.o: /usr/include/assert.h /usr/include/features.h
+src/data_structures/tree.o: /usr/include/stdc-predef.h /usr/include/ctype.h
+src/data_structures/tree.o: /usr/include/endian.h /usr/include/stdio.h
+src/data_structures/tree.o: /usr/include/string.h /usr/include/strings.h
+src/data_structures/tree.o: src/defs.h src/mem.h /usr/include/stdlib.h
+src/data_structures/tree.o: /usr/include/alloca.h src/data_structures/tree.h
+src/data_structures/tree.o: src/data_structures/./doublyLinkedList.h
 test/data_structures/doublyLinkedList.test.o: /usr/include/setjmp.h
 test/data_structures/doublyLinkedList.test.o: /usr/include/features.h
 test/data_structures/doublyLinkedList.test.o: /usr/include/stdc-predef.h
-test/data_structures/doublyLinkedList.test.o: /usr/include/stdlib.h src/mem.h
+test/data_structures/doublyLinkedList.test.o: /usr/include/stdlib.h
+test/data_structures/doublyLinkedList.test.o: /usr/include/alloca.h src/mem.h
 test/data_structures/doublyLinkedList.test.o: src/data_structures/doublyLinkedList.h
-test/loaders/lvl_loader.test.o: /usr/include/setjmp.h /usr/include/features.h
+test/data_structures/tree.test.o: /usr/include/setjmp.h
+test/data_structures/tree.test.o: /usr/include/features.h
+test/data_structures/tree.test.o: /usr/include/stdc-predef.h
+test/data_structures/tree.test.o: /usr/include/stdio.h /usr/include/stdlib.h
+test/data_structures/tree.test.o: /usr/include/alloca.h
+test/data_structures/tree.test.o: src/data_structures/tree.h
+test/data_structures/tree.test.o: src/data_structures/./doublyLinkedList.h
+test/data_structures/tree.test.o: src/data_structures/doublyLinkedList.h
+test/data_structures/tree.test.o: src/defs.h src/mem.h
+test/data_structures/quadTree.test.o: /usr/include/setjmp.h
+test/data_structures/quadTree.test.o: /usr/include/features.h
+test/data_structures/quadTree.test.o: /usr/include/stdc-predef.h
+test/data_structures/quadTree.test.o: /usr/include/stdlib.h
+test/data_structures/quadTree.test.o: /usr/include/alloca.h src/mem.h
+test/data_structures/quadTree.test.o: src/data_structures/quad_tree.h
+test/data_structures/quadTree.test.o: src/data_structures/./doublyLinkedList.h
+test/data_structures/quadTree.test.o: src/data_structures/././tree.h
+test/loaders/lvl_loader.test.o: /usr/include/errno.h /usr/include/features.h
 test/loaders/lvl_loader.test.o: /usr/include/stdc-predef.h
-test/loaders/lvl_loader.test.o: /usr/include/stdlib.h
+test/loaders/lvl_loader.test.o: /usr/include/stdio.h /usr/include/string.h
+test/loaders/lvl_loader.test.o: /usr/include/strings.h /usr/include/setjmp.h
+test/loaders/lvl_loader.test.o: /usr/include/stdlib.h /usr/include/alloca.h

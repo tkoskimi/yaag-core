@@ -7,138 +7,86 @@
 #include "../../src/mem.h"
 #include "../../src/data_structures/quad_tree.h"
 
-struct QuadTest {
-    struct QTree* quad;
-};
+typedef struct {
+    QStruct* q;
+} QuadTest;
 
 static int quad_setup(void **state) {
-    struct QuadTest *test_struct = test_malloc( sizeof( struct QuadTest ) );
-    test_struct->quad = quad_new();
+    QuadTest *test_struct = test_malloc( sizeof( QuadTest ) );
+    test_struct->q = quad_new();
     *state = test_struct;
 
     return 0;
 }
 
-static int dbll_teardown(void **state) {
-    quad_free( ( ( struct DblTest * ) *state )->list );
+static int quad_teardown(void **state) {
+    quad_free( ( ( QuadTest * ) *state )->q );
     test_free( *state );
 
     return 0;
 }
 
-static void empty_list(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
-    assert_null( dbllist_head( list ) );
-    assert_null( dbllist_tail( list ) );
-    assert_true( dbllist_is_empty( list ) );
+static void bit_masks(void **state) {
+    assert_int_equal( 0x0, _bit_mask_011(0) );
+    assert_int_equal( 0x1, _bit_mask_011(1) );
+    assert_int_equal( 0x7, _bit_mask_011(3) );
+    assert_int_equal( 0xff, _bit_mask_011(8) );
+    assert_int_equal( 0x1fff, _bit_mask_011(13) );
+    assert_int_equal( 0x7fffffff, _bit_mask_011(31) );
+
+    assert_int_equal( 0x0, _bit_mask_010(1,1) );
+    assert_int_equal( 0x2, _bit_mask_010(1,2) );
+    assert_int_equal( 0x1c, _bit_mask_010(2,5) );
+    assert_int_equal( 0x00f0, _bit_mask_010(4,8) );
 }
 
-static void push_to_empty(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
-    int *value = test_malloc( sizeof( int ) );
+static void test_index(void **state) {
+    QStruct* q = ( ( QuadTest * ) *state )->q;
+    assert_int_equal( 0x0, quad_point_index(q, 0x0, 0x0));
 
-    // Insert one value
-    *value = 1;
-    struct Node* node = dbllist_push( list, value );
+    int x0;
+    int y0;
 
-    assert_false( dbllist_is_empty( list ) );
-    assert_int_equal( dbllist_size( list ), 1 );
-    assert_ptr_equal( dbllist_head( list ), dbllist_tail( list ) );
-    assert_ptr_equal( dbllist_head( list ), node );
-    assert_null( node->next );
-    assert_null( node->prev );
+    x0 = 0x1 << ( REGION_DIM_IN_BITS - DEPTH_OF_QTREE);
+    y0 = 0x1 << ( REGION_DIM_IN_BITS - DEPTH_OF_QTREE);
+    assert_int_equal( 0x3, quad_point_index(q, x0, y0));
 
-    test_free( dbllist_pop( list ) );
+    x0 = 0x3 << ( REGION_DIM_IN_BITS - DEPTH_OF_QTREE);
+    y0 = 0x2 << ( REGION_DIM_IN_BITS - DEPTH_OF_QTREE);
+    assert_int_equal( 0xe, quad_point_index(q, x0, y0));
+
+    x0 = 0x2 << ( REGION_DIM_IN_BITS - DEPTH_OF_QTREE);
+    y0 = 0x3 << ( REGION_DIM_IN_BITS - DEPTH_OF_QTREE);
+    assert_int_equal( 0xd, quad_point_index(q, x0, y0));
 }
 
-static void push_to_non_empty(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
-    int *zero = test_malloc( sizeof( int ) );
-    int *one = test_malloc( sizeof( int ) );
+static void test_index_in_custom_q(void **state) {
+    QStruct* q = quad_new_and_init( 0x10, 0x10, 5, 2);
+    assert_int_equal( 0x0, quad_point_index(q, 0x10, 0x10));
+    assert_int_equal( 0xc, quad_point_index(q, 0x20, 0x20));
+    assert_int_equal( 0x0, quad_point_index(q, 0x30, 0x20));
+    
+    int x0;
+    int y0;
 
-    *zero = 0;
-    *one = 1;
-    struct Node* node0 = dbllist_push( list, zero );
-    struct Node* node1 = dbllist_push( list, one );
+    x0 = ( 0x1 << ( q->dim - q->depth ) ) + 0x10;
+    y0 = ( 0x1 << ( q->dim - q->depth ) ) + 0x10;
+    assert_int_equal( 0x3, quad_point_index(q, x0, y0));
 
-    assert_false( dbllist_is_empty( list ) );
-    assert_int_equal( dbllist_size( list ), 2 );
-    assert_ptr_equal( dbllist_head( list ), node1 );
-    assert_ptr_equal( dbllist_tail( list ), node0 );
-    assert_ptr_equal( node1->next, node0 );
-    assert_null( node1->prev );
-    assert_null( node0->next );
-    assert_ptr_equal( node0->prev, node1 );
+    x0 = ( 0x3 << ( q->dim - q->depth ) ) + 0x10;
+    y0 = ( 0x2 << ( q->dim - q->depth ) ) + 0x10;
+    assert_int_equal( 0xe, quad_point_index(q, x0, y0));
 
-    test_free( dbllist_pop( list ) );
-    test_free( dbllist_pop( list ) );
+    x0 = ( 0x2 << ( q->dim - q->depth ) ) + 0x10;
+    y0 = ( 0x3 << ( q->dim - q->depth ) ) + 0x10;
+    assert_int_equal( 0xd, quad_point_index(q, x0, y0));
 }
 
-static void pop_to_empty(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
-    int *zero = test_malloc( sizeof( int ) );
-
-    *zero = 0;
-
-    struct Node* node0 = dbllist_push( list, zero );
-    void *data = dbllist_pop( list );
-
-    assert_true( dbllist_is_empty( list ) );
-    assert_int_equal( dbllist_size( list ), 0 );
-    assert_null( dbllist_head( list ) );
-    assert_null( dbllist_tail( list ) );
-    assert_ptr_equal( data, zero );
-
-    test_free( data );
-}
-
-static void pop_to_non_empty(void **state) {
-    struct DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
-    int *zero = test_malloc( sizeof( int ) );
-    int *one = test_malloc( sizeof( int ) );
-    int *two = test_malloc( sizeof( int ) );
-
-    *zero = 0;
-    *one = 1;
-    *two = 2;
-
-    struct Node* node0 = dbllist_push( list, zero );
-    struct Node* node1 = dbllist_push( list, one );
-    struct Node* node2 = dbllist_push( list, two );
-
-    void *data = dbllist_pop( list );
-
-    assert_false( dbllist_is_empty( list ) );
-    assert_int_equal( dbllist_size( list ), 2 );
-    assert_ptr_equal( dbllist_head( list ), node1 );
-    assert_ptr_equal( dbllist_tail( list ), node0 );
-    assert_ptr_equal( node1->next, node0 );
-    assert_null( node1->prev );
-    assert_null( node0->next );
-    assert_ptr_equal( node0->prev, node1 );
-    assert_ptr_equal( data, two );
-
-    test_free( data );
-    test_free( dbllist_pop( list ) );
-    test_free( dbllist_pop( list ) );
-}
-
-static void multiple_pushes_pops(void **state) {
-}
-
-static void create_delete(void **state) {
-}
-
-static void clr(void **state) {
-}
-
-int dbll_test() {
+int quad_test() {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test_setup_teardown( empty_list, dbll_setup, dbll_teardown ),
-        cmocka_unit_test_setup_teardown( push_to_empty, dbll_setup, dbll_teardown ),
-        cmocka_unit_test_setup_teardown( push_to_non_empty, dbll_setup, dbll_teardown ),
-        cmocka_unit_test_setup_teardown( pop_to_empty, dbll_setup, dbll_teardown ),
-        cmocka_unit_test_setup_teardown( pop_to_non_empty, dbll_setup, dbll_teardown )
+        cmocka_unit_test_setup_teardown( bit_masks, quad_setup, quad_teardown ),
+        cmocka_unit_test_setup_teardown( test_index, quad_setup, quad_teardown ),
+        cmocka_unit_test_setup_teardown( test_index_in_custom_q, quad_setup, quad_teardown ),
     };
 
     return cmocka_run_group_tests( tests, NULL, NULL );

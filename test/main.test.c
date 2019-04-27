@@ -8,6 +8,7 @@
 #include <cmocka.h>
 
 #include "./data_structures/doublyLinkedList.test.h"
+#include "./data_structures/quadTree.test.h"
 #include "./data_structures/tree.test.h"
 #include "./loaders/lvl_loader.test.h"
 
@@ -42,5 +43,6 @@ int main(int argc, char* argv[]) {
 	// Tests should be added here.
 	dbll_test();
     tree_test();
+    quad_test();
 	//lvl_loader_test(dirvalue);
 }
