@@ -13,7 +13,7 @@
 #include "./quad_tree.h"
 #include "./tree.h"
 
-// Note. The names must not be longer 
+// Note. The names must not be longer than LEVEL_NAME_MAX_LENGTH (see tree.h).
 char* QUAD_PATHS[] = { "00.", "01.", "10.", "11." };
 
 inline unsigned int _bit_mask_011(unsigned int x) {
@@ -75,7 +75,7 @@ int quad_point_index( QStruct* q, unsigned int x0, unsigned int y0 ) {
     int y0s = ( y0 - q->y0 ) >> ( dim - depth );
     // Here the shifted coordinate (x0s and y0s) has a following form:
     //
-    // MSB                                         1:th bit
+    // MSB                                         1:st bit
     //                          <------ dim_in_bits ------>
     // +-----+-----+--...-+-----+-----+-------+--...+-----+
     // |  0  |  0  |  ... |  0  |x0s.n|x0s.n-1|  ...+x0s.1|
@@ -89,7 +89,7 @@ int quad_point_index( QStruct* q, unsigned int x0, unsigned int y0 ) {
     // Two bits, e.g., x0s.n and y0s.n define the ( depth_of_qtree - n + 1 ):th
     // level of quadrants. Hence, we pack the index in the following way:
     //
-    // MSB                                                             1:th bit
+    // MSB                                                             1:st bit
     //    +-----+--...+-----+---------+---------+--...+-----+-----+-----+-----+
     //    |  0  |--...|  0  |x0s.depth|y0s.depth|  ...|x0s.2|y0s.2|x0s.1|y0s.1|
     //    +-----+--...+-----+---------+---------+--...+-----+-----+-----+-----+
@@ -116,7 +116,7 @@ char* quad_node_path( QStruct* q, int index_tl, int index_br ) {
     //
     // 1) i in ( 2, 2 * depth) is the first bit of the index of the quadrant
     // 2) j in ( 0, 2 * depth - 2) is the first bit not included in the index
-    // 3) k in ( 2, 3 * depth - 1) is the index of the last char of the path
+    // 3) k in ( 0, 3 * depth - 1) is the index of the last char of the path
     int k = -1;
     for ( int i = 2 * q->depth, j = i - 2; i > 0; i -= 2, j -= 2, k += 3 ) {
         int mask = _bit_mask_010( j, i );
