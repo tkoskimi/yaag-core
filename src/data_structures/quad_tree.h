@@ -21,8 +21,13 @@
 #define QUAD_NONPOSITIVE_DIMENSIONS "Dimenstions must be positive"
 #define QUAD_BOX_POS_ORIENTATION "Bounding box must have negative orientation"
 
+// Definitions
 #define REGION_DIM_IN_BITS    10
 #define DEPTH_OF_QTREE        3 
+
+// Return values
+#define NO_QUAD              NULL
+#define COORDINATE_OUSIDE    -1
 
 typedef struct {
     TTree *qtree;
@@ -52,6 +57,8 @@ QStruct* quad_new_and_init(
 void quad_free( QStruct *q );
 
 int quad_point_index( QStruct* qstruct, unsigned int x0, unsigned int y0 );
+
+char* quad_node_path( QStruct* q, int index_tl, int index_br );
 
 // Inserts a new node to the array
 // QNode* quad_insert_rcrsv( QArray* tree, void* new_data, int x0, int y0, int x1, int y1 );
