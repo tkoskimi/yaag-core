@@ -100,7 +100,7 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, void (*
                 // Insert the new node. Preserve the order.
                 dbllist_push_to_end( tree_node->children, new_node );
                 // Call the insert function.
-                insert( SUCCESS, new_data );
+                insert( error, new_data );
                 // Move on.
                 tree_node = new_node;
             } else {
