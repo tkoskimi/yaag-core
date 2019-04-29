@@ -113,6 +113,9 @@ static void parse_tree_too_deep(void **state) {
     return;
 }
 
+static void insert( int value, void *data ) {
+}
+
 static void insert_node_into_empty_tree(void **state) {
     TTree* tree = ( ( TreeTest * ) *state )->tree;
 
@@ -129,7 +132,7 @@ static void insert_node_into_empty_tree(void **state) {
     // Set data
     *zero = 0;
 
-    ret_value = tree_insert( tree, path, zero, 0 );
+    ret_value = tree_insert( tree, path, zero, 0, insert );
 
     TNode* node = (TNode *) dbllist_tail( tree->root->children )->data;
     assert_int_equal( 1, dbllist_size( tree->root->children ) );
@@ -162,14 +165,14 @@ static void insert_node_into_nonempty_tree(void **state) {
 
     // Parents flag is off
 
-    ret_value = tree_insert( tree, path, zero, 0 );
+    ret_value = tree_insert( tree, path, zero, 0, insert );
 
     assert_null( ret_value );
     assert_true( dbllist_is_empty( tree->root->children ) );
 
     // Parents flag is on
 
-    ret_value = tree_insert( tree, path, zero, 1 );
+    ret_value = tree_insert( tree, path, zero, 1, insert );
     assert_ptr_equal( zero, ret_value );
     assert_string_equal( "a", get_tnode_from_tails( root, 1 )->name );
     assert_string_equal( "b", get_tnode_from_tails( root, 2 )->name );
@@ -207,10 +210,10 @@ static void insert_two_nodes(void **state) {
 
     // Parents flag is on
 
-    ret_value = tree_insert( tree, path1, zero, 1 );
+    ret_value = tree_insert( tree, path1, zero, 1, insert );
     assert_ptr_equal( zero, ret_value );
     
-    ret_value = tree_insert( tree, path2, one, 1 );
+    ret_value = tree_insert( tree, path2, one, 1, insert );
     assert_ptr_equal( one, ret_value );
 
     assert_string_equal( "a", get_tnode_from_tails( root, 1 )->name );
@@ -256,7 +259,7 @@ static void find_a_node_from_2nd_level(void **state) {
     // Set data
     *zero = 0;
 
-    ret_value = tree_insert( tree, path, zero, 1 );
+    ret_value = tree_insert( tree, path, zero, 1, insert );
     assert_ptr_equal( zero, ret_value );
     assert_string_equal( "a", get_tnode_from_tails( root, 1 )->name );
     assert_string_equal( "b", get_tnode_from_tails( root, 2 )->name );
@@ -336,7 +339,7 @@ static void remove_tree(void **state) {
     *zero = 0;
 
     // Parents flag is on
-    ret_value = tree_insert( tree, path, zero, 1 );
+    ret_value = tree_insert( tree, path, zero, 1, insert );
     TNode* b = get_tnode_from_tails( root, 2 );
     TNode* a = get_tnode_from_tails( root, 1 );
 
@@ -379,14 +382,14 @@ static void remove_subtree(void **state) {
     path = "a.b";
     int *zero = test_malloc( sizeof( int ) );
     *zero = 0;
-    ret_value = tree_insert( tree, path, zero, 1 );
+    ret_value = tree_insert( tree, path, zero, 1, insert );
 
     assert_ptr_equal( zero, ret_value );
 
     path = "a.c";
     int *one = test_malloc( sizeof( int ) );
     *one = 0;
-    ret_value = tree_insert( tree, path, one, 1 );
+    ret_value = tree_insert( tree, path, one, 1, insert );
 
     assert_ptr_equal( one, ret_value );
 
@@ -440,28 +443,28 @@ static void tree_2_list(void **state) {
     path = "a";
     int *zero = test_malloc( sizeof( int ) );
     *zero = 0;
-    ret_value = tree_insert( tree, path, zero, 1 );
+    ret_value = tree_insert( tree, path, zero, 1, insert );
 
     assert_ptr_equal( zero, ret_value );
 
     path = "a.b";
     int *one = test_malloc( sizeof( int ) );
     *one = 1;
-    ret_value = tree_insert( tree, path, one, 1 );
+    ret_value = tree_insert( tree, path, one, 1, insert );
 
     assert_ptr_equal( one, ret_value );
 
     path = "a.c";
     int *two = test_malloc( sizeof( int ) );
     *two = 2;
-    ret_value = tree_insert( tree, path, two, 1 );
+    ret_value = tree_insert( tree, path, two, 1, insert );
 
     assert_ptr_equal( two, ret_value );
 
     path = "a.b.d";
     int *three = test_malloc( sizeof( int ) );
     *three = 3;
-    ret_value = tree_insert( tree, path, three, 1 );
+    ret_value = tree_insert( tree, path, three, 1, insert );
 
     assert_ptr_equal( three, ret_value );
 

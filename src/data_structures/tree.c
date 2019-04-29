@@ -20,7 +20,7 @@ void tree_free( TTree* tree ) {
     mem_free( tree );
 }
 
-void* tree_insert( TTree* tree, char* path, void* new_data, int parents ) {
+void* tree_insert( TTree* tree, char* path, void* new_data, int parents, void (*insert)( int, void* ) ) {
     assert ( !_is_empty(tree) && TREE_NOROOT );
 
     // A current node of the tree.
@@ -88,6 +88,7 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents ) {
                 printf("Error in tree_insert: %d\n. Use tree_find to modify", ERROR_NO_REPLACEMENT );
 #endif // LOGGING
                 error = ERROR_NO_REPLACEMENT;
+                insert( error, tree_node->data );
                 break;
             }
         } else {
@@ -98,6 +99,8 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents ) {
                 new_node->children = dbllist_new();
                 // Insert the new node. Preserve the order.
                 dbllist_push_to_end( tree_node->children, new_node );
+                // Call the insert function.
+                insert( 0, new_data );
                 // Move on.
                 tree_node = new_node;
             } else {
