@@ -113,7 +113,7 @@ static void parse_tree_too_deep(void **state) {
     return;
 }
 
-static void insert( int value, void *data ) {
+static void insert( int value, void *old_data, void *new_data ) {
 }
 
 static void insert_node_into_empty_tree(void **state) {

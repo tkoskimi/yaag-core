@@ -108,7 +108,7 @@ void tree_free( TTree* tree );
 // @param parents Make parent as needed
 // @param insert The pointer to a function that is called when inserting the data
 // @return The old data [void *] of the tree node
-void* tree_insert( TTree* tree, char* path, void* new_data, int parents, void (*insert)( int, void* ) );
+void* tree_insert( TTree* tree, char* path, void* new_data, int parents, void (*insert)( int, void*, void* ) );
 
 // Finds a node from the tree
 //
