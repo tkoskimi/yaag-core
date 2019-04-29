@@ -11,6 +11,22 @@ typedef struct {
     QStruct* q;
 } QuadTest;
 
+static TNode *get_tnode_from_heads( TNode *root, int depth ) {
+    TNode *node = root;
+    for( int i = 0; i < depth; i++ ) {
+        node = (TNode *) ( (Node *) dbllist_head( node->children ) )->data;
+    }
+    return node;
+}
+
+static TNode *get_tnode_from_tails( TNode *root, int depth ) {
+    TNode *node = root;
+    for( int i = 0; i < depth; i++ ) {
+        node = (TNode *) ( (Node *) dbllist_tail( node->children ) )->data;
+    }
+    return node;
+}
+
 static int quad_setup(void **state) {
     QuadTest *test_struct = test_malloc( sizeof( QuadTest ) );
     test_struct->q = quad_new();
@@ -151,6 +167,130 @@ static void test_node_path_in_custom_q(void **state) {
     mem_free( name );
 }
 
+// The callback function
+//
+// @param err The error value
+// @param data The data of the tree node
+static void _clr_item(void *data) {
+    if ( data ) {
+        mem_free( data );
+    }
+}
+
+static void _clr_go(void *data) {
+    if ( data ) {
+        test_free( data );
+    }
+}
+
+static void _clr_gos(void *data) {
+    if ( data ) {
+        DblLinkedList* l = ( DblLinkedList * ) data;
+        dbllist_remove( l, _clr_go );
+    }
+}
+
+void _insert( int err, void* old_data, void* new_data ) {
+    if ( err == SUCCESS ) {
+        return;
+    } else if ( err == ERROR_NO_REPLACEMENT ) {
+        dbllist_append( (DblLinkedList *) old_data, (DblLinkedList *) new_data );
+        // There is just one game object in this list. Pop it and release the list.
+        dbllist_remove( (DblLinkedList *) new_data, NULL );
+        dbllist_free( (DblLinkedList *) new_data );
+    }
+}
+
+static void insert_node_into_empty_qtree(void **state) {
+    QStruct* q = ( ( QuadTest * ) *state )->q;
+
+    TNode *root = (TNode *) mem_malloc( sizeof( TNode ) );
+    q->qtree->root = root;
+    q->qtree->root->name = NULL;
+    q->qtree->root->data = NULL;
+    q->qtree->root->children = dbllist_new();
+
+    GameObject *go = (GameObject *) test_malloc( sizeof( GameObject ) );
+    go->x = 0;
+    go->y = 0;
+    go->w = 1;
+    go->h = 1;
+
+    // The data of the tree node is a list of game objects.
+    DblLinkedList* gos = dbllist_new();
+    dbllist_push( gos, go );
+
+    quad_insert( q, go->x, go->y, go->x + go->w, go->y + go->h, gos, _insert );
+
+    DblLinkedList* children = NULL;
+    TNode* tnode = tree_find( q->qtree, "00.00.00", &children);
+
+    assert_string_equal( "00", tnode->name );
+    assert_ptr_equal( gos, tnode->data );
+    assert_ptr_equal( go, ((DblLinkedList *)tnode->data)->head->data);
+
+    tree_remove( q->qtree, NULL, _clr_gos );
+    mem_free( q->qtree->root );
+    q->qtree->root = NULL;
+}
+
+static void insert_three_nodes_qtree(void **state) {
+    QStruct* q = ( ( QuadTest * ) *state )->q;
+
+    TNode *root = (TNode *) mem_malloc( sizeof( TNode ) );
+    q->qtree->root = root;
+    q->qtree->root->name = NULL;
+    q->qtree->root->data = NULL;
+    q->qtree->root->children = dbllist_new();
+
+    GameObject *go1 = (GameObject *) test_malloc( sizeof( GameObject ) );
+    go1->x = 0;
+    go1->y = 0;
+    go1->w = 1;
+    go1->h = 1;
+
+    GameObject *go2 = (GameObject *) test_malloc( sizeof( GameObject ) );
+    go2->x = 0x80;
+    go2->y = 0;
+    go2->w = 1;
+    go2->h = 1;
+
+    GameObject *go3 = (GameObject *) test_malloc( sizeof( GameObject ) );
+    go3->x = 0;
+    go3->y = 0;
+    go3->w = 1;
+    go3->h = 1;
+
+    DblLinkedList* gos = NULL;
+
+    gos = dbllist_new();
+    dbllist_push( gos, go1 );
+    quad_insert( q, go1->x, go1->y, go1->x + go1->w, go1->y + go1->h, gos, _insert );
+
+    gos = dbllist_new();
+    dbllist_push( gos, go2 );
+    quad_insert( q, go2->x, go2->y, go2->x + go2->w, go2->y + go2->h, gos, _insert );
+
+    gos = dbllist_new();
+    dbllist_push( gos, go3 );
+    quad_insert( q, go3->x, go3->y, go3->x + go3->w, go3->y + go3->h, gos, _insert );
+
+    DblLinkedList* children = NULL;
+    TNode* tnode = tree_find( q->qtree, "00.00.00", &children);
+
+    assert_ptr_equal( go1, ((DblLinkedList *)tnode->data)->head->data);
+    assert_ptr_equal( go3, ((DblLinkedList *)tnode->data)->tail->data);
+
+    tnode = tree_find( q->qtree, "00.00.10", &children);
+
+    assert_string_equal( "10", tnode->name );
+    assert_ptr_equal( go2, ((DblLinkedList *)tnode->data)->head->data);
+
+    tree_remove( q->qtree, NULL, _clr_gos );
+    mem_free( q->qtree->root );
+    q->qtree->root = NULL;
+}
+
 int quad_test() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test_setup_teardown( bit_masks, quad_setup, quad_teardown ),
@@ -159,6 +299,8 @@ int quad_test() {
         cmocka_unit_test_setup_teardown( test_limits_custom_q, quad_setup, quad_teardown ),
         cmocka_unit_test_setup_teardown( test_node_path, quad_setup, quad_teardown ),
         cmocka_unit_test_setup_teardown( test_node_path_in_custom_q, quad_setup, quad_teardown ),
+        cmocka_unit_test_setup_teardown( insert_node_into_empty_qtree, quad_setup, quad_teardown ),
+        cmocka_unit_test_setup_teardown( insert_three_nodes_qtree, quad_setup, quad_teardown ),
     };
 
     return cmocka_run_group_tests( tests, NULL, NULL );

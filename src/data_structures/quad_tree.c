@@ -9,7 +9,9 @@
 #include <string.h>
 
 #include "../defs.h"
+#include "../game.h"
 #include "../mem.h"
+#include "./doublyLinkedList.h"
 #include "./quad_tree.h"
 #include "./tree.h"
 
@@ -134,6 +136,38 @@ char* quad_node_path( QStruct* q, int index_tl, int index_br ) {
     return name;
 }
 
+void quad_insert(
+        QStruct* q, 
+        int x0,
+        int y0,
+        int x1,
+        int y1,
+        void* new_data,
+        void (*insert)( int, void*, void* ) ) {
+    int index_tl = quad_point_index( q, x0, y0 );
+    int index_br = quad_point_index( q, x1, y1 );
+    char* path = quad_node_path( q, index_tl, index_br );
+    tree_insert( q->qtree, path, new_data, 1, insert );
+}
+
+void* quad_collision( QStruct* q, void (*collide)( void* ) ) {
+}
+
+// void* _quad_collision( DblLinkedList* list, void (*collide)( void* ) ) {
+//     if( !dbllist_is_empty( list ) ) {
+//         TNode* tree_node = (TNode *) list->head->data;
+//         if ( tree_node->children ) {
+//             if ( dbllist_size( tree_node->children ) ){
+//                 _quad_collision( tree_node->children, collide );
+//             }
+
+//         }
+//         if ( tree_node->name ) {
+//             mem_free( tree_node->name );
+//         }
+//         free( tree_node->data );
+//     }
+// }
 /**
  * Four disjoint subquadrants.
  *

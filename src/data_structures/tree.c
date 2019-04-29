@@ -83,13 +83,11 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, void (*
                 continue;
             }
             // Handle the case where the child is the last one.
-            if ( tree_node->data ) {
+            if ( child->data ) {
 #ifdef LOGGING
-                printf("Error in tree_insert: %d\n. Use tree_find to modify", ERROR_NO_REPLACEMENT );
+                printf("Warning in tree_insert: %d\n. Use tree_find to modify", ERROR_NO_REPLACEMENT );
 #endif // LOGGING
-                error = ERROR_NO_REPLACEMENT;
-                insert( error, tree_node->data, new_data );
-                break;
+                insert( ERROR_NO_REPLACEMENT, ((TNode *) child->data)->data, new_data );
             }
         } else {
             if ( is_last || parents ) {
@@ -100,7 +98,7 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, void (*
                 // Insert the new node. Preserve the order.
                 dbllist_push_to_end( tree_node->children, new_node );
                 // Call the insert function.
-                insert( error, NULL, new_data );
+                insert( error, NULL, new_node->data );
                 // Move on.
                 tree_node = new_node;
             } else {

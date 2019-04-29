@@ -13,7 +13,9 @@
 #define _quadtree_
 
 #include <limits.h>
+
 #include "./doublyLinkedList.h"
+#include "../game.h"
 #include "./tree.h"
 
 // Messages for the diagnostics
@@ -47,7 +49,7 @@ typedef struct {
 //      c-macro-to-create-a-bit-mask-possible-and-have-i-found-a-gcc-bug
 unsigned int _bit_mask_011(unsigned int n);
 
-// Returns a bit mask whose bits in the range (m+1,n) are 1s; Others are 0s
+// Returns a bit mask whose bits are 1s in the range (m+1,n); Others are 0s
 //
 // @param m The index of the last 0 before 1s.
 // @param n The index of the last 1.
@@ -69,7 +71,7 @@ void quad_free( QStruct *q );
 
 // Returns an index of a quadrants that the point is belonging to
 //
-// @param q The pointer to a quad structure.
+// @param q The pointer to the quad structure.
 // @param x0 The x coordinate of the point.
 // @param y0 The y coordinate of the point.
 // @return The index of the point. The value is explained below:
@@ -102,11 +104,29 @@ int quad_point_index( QStruct* qstruct, unsigned int x0, unsigned int y0 );
 
 // Returns a path of the quadrant that contains both points, tl and br
 //
-// @param q The pointer to a quad structure.
+// @param q The pointer to the quad structure.
 // @param index_tl The index of the quadrant that contains the tl.
 // @param index_br The index of the quadrant that contains the br.
 // @return The path, e.g. "00.01"; NULL if there is no quadrant that contains the
 //      tl and/or br.
 char* quad_node_path( QStruct* q, int index_tl, int index_br );
+
+// Inserts a new node to the quad tree
+//
+// @param q The pointer to the quad structure.
+// @param new_data The data to be added to the node.
+// @param insert The pointer to a function that is called when inserting the data.
+void quad_insert(
+    QStruct* q,
+    int x0,
+    int y0,
+    int x1,
+    int y1,
+    void* new_data,
+    void (*)( int, void*, void* )
+);
+
+// [Will be removed]
+void* quad_collision( QStruct* q, void (*collide)( void* ) );
 
 #endif // _quadtree_
