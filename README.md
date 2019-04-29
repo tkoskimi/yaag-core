@@ -47,3 +47,8 @@ An example about a debugging session:
     (gdb) n
     (gdb) ...
     (gdb) quit
+
+ToDos
+-
+1. tree_remove() should remove whole tree
+2. Check that data structures will not release the data
