@@ -26,6 +26,17 @@ void dbllist_free( DblLinkedList* list ) {
     mem_free(list);
 }
 
+DblLinkedList* dbllist_append( DblLinkedList* dst, DblLinkedList* src ) {
+    if ( src != NULL && !_is_empty( src ) ) {
+        Node *node = src->head;
+        while ( node != NULL ) {
+            dbllist_push_to_end( dst, node->data );
+            node = node->next;
+        }
+    }
+    return dst;
+}
+
 Node* dbllist_push( DblLinkedList* list, void* new_data ) {
     assert( new_data != NULL && DBLL_NEWNULL );
 
@@ -61,7 +72,7 @@ Node* dbllist_push_to_end( DblLinkedList* list, void* new_data ) {
     // Set the head if the list is empty. Note that the head will not change
     // later if using push_to_end function. If the list is non-empty, then the
     // node will not be the head and we have to set-up the second last node.
-    if ( _is_empty(list) ) {
+    if ( _is_empty( list ) ) {
         list->head = node;
     } else {
         node->prev->next = node;

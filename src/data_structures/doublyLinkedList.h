@@ -40,6 +40,13 @@ DblLinkedList* dbllist_new();
 
 void dbllist_free( DblLinkedList* list );
 
+// Adds a source list (src) to the end of the destination list (dst)
+//
+// @param dst The pointer to the destination list
+// @param src The pointer to the source list
+// @return The destination list
+DblLinkedList* dbllist_append( DblLinkedList* dst, DblLinkedList* src );
+
 // Inserts a new node at the beginning of the list
 //
 // @param list The pointer to the list where the node is pushed into

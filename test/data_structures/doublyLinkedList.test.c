@@ -33,6 +33,73 @@ static void empty_list(void **state) {
     assert_true( dbllist_is_empty( list ) );
 }
 
+static void append_to_two_empty_lists(void **state) {
+    DblLinkedList* dst = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* src = dbllist_new();
+
+    dbllist_append( dst, src );
+    assert_true( dbllist_size( dst ) == 0 );
+
+    dbllist_free( src );
+}
+
+static void append_to_one_empty_list(void **state) {
+    DblLinkedList* dst = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* src = dbllist_new();
+
+    int *one = test_malloc( sizeof( int ) );
+    *one = 1;
+
+    Node* node1 = dbllist_push( dst, one );
+
+    assert_int_equal( dbllist_size( dst ), 1 );
+    assert_int_equal( dbllist_size( src ), 0 );
+    assert_ptr_equal( dbllist_head( dst ), node1 );
+
+    dbllist_append( dst, src );
+
+    assert_int_equal( dbllist_size( dst ), 1 );
+    assert_int_equal( dbllist_size( src ), 0 );
+    assert_ptr_equal( dbllist_head( dst ), node1 );
+
+    test_free( dbllist_pop( dst ) );
+    dbllist_free( src );
+}
+
+static void append_to_nonempty_list(void **state) {
+    DblLinkedList* dst = ( ( struct DblTest * ) *state )->list;
+    DblLinkedList* src = dbllist_new();
+
+    int *one = test_malloc( sizeof( int ) );
+    *one = 1;
+
+    int *two = test_malloc( sizeof( int ) );
+    *two = 2;
+
+    Node* node1 = dbllist_push( dst, one );
+    Node* node2 = dbllist_push( src, two );
+
+    assert_int_equal( dbllist_size( dst ), 1 );
+    assert_int_equal( dbllist_size( src ), 1 );
+    assert_ptr_equal( dbllist_head( dst ), node1 );
+    assert_ptr_equal( dbllist_tail( src ), node2 );
+
+    dbllist_append( dst, src );
+
+    assert_int_equal( dbllist_size( dst ), 2 );
+    assert_int_equal( dbllist_size( src ), 1 );
+    assert_int_equal( 1, * ( (int *) dbllist_head( dst )->data ) );
+    assert_int_equal( 2, * ( (int *) dbllist_tail( dst )->data ) );
+    assert_int_equal( 2, * ( (int *) dbllist_head( src )->data ) );
+    assert_ptr_equal( dbllist_head( dst ), node1 );
+    assert_ptr_equal( dbllist_tail( src ), node2 );
+
+    test_free( dbllist_pop( dst ) );
+    test_free( dbllist_pop( dst ) );
+    dbllist_pop( src );
+    dbllist_free( src );
+}
+
 static void push_to_empty(void **state) {
     DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
     int *value = test_malloc( sizeof( int ) );
@@ -324,6 +391,9 @@ int dbll_test() {
         cmocka_unit_test_setup_teardown( remove_the_middle, dbll_setup, dbll_teardown ),
         cmocka_unit_test_setup_teardown( list_clear, dbll_setup, dbll_teardown ),
         cmocka_unit_test_setup_teardown( list_clear_nodes, dbll_setup, dbll_teardown ),
+        cmocka_unit_test_setup_teardown( append_to_two_empty_lists, dbll_setup, dbll_teardown ),
+        cmocka_unit_test_setup_teardown( append_to_one_empty_list, dbll_setup, dbll_teardown ),
+        cmocka_unit_test_setup_teardown( append_to_nonempty_list, dbll_setup, dbll_teardown ),
     };
 
     return cmocka_run_group_tests( tests, NULL, NULL );
