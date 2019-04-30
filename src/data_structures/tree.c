@@ -95,6 +95,7 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, void (*
                 printf("Warning in tree_insert: %d\n. Use tree_find to modify", WARNING_VALUE_REPLACEMENT );
 #endif // LOGGING
                 insert( WARNING_VALUE_REPLACEMENT, ((TNode *) child->data)->data, new_data );
+                error = WARNING_VALUE_REPLACEMENT;
             } else {
                 ((TNode *) child->data)->data = new_data;
                 insert( error, NULL, new_data );
@@ -123,7 +124,7 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, void (*
     }
 
     // TD2. This will release the names and the array of names.
-    if( error ) {
+    if( error < 0 ) {
         _clean_up( lvl_names );
         return NULL;
     }
