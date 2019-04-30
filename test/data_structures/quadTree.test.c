@@ -7,10 +7,6 @@
 #include "../../src/mem.h"
 #include "../../src/data_structures/quad_tree.h"
 
-typedef struct {
-    QStruct* q;
-} QuadTest;
-
 static TNode *get_tnode_from_heads( TNode *root, int depth ) {
     TNode *node = root;
     for( int i = 0; i < depth; i++ ) {
@@ -27,10 +23,33 @@ static TNode *get_tnode_from_tails( TNode *root, int depth ) {
     return node;
 }
 
+typedef struct {
+    QStruct* q;
+} QuadTest;
+
+
+//
+//   Test Fixtures
+//
+
 static int quad_setup(void **state) {
     QuadTest *test_struct = test_malloc( sizeof( QuadTest ) );
     test_struct->q = quad_new();
     *state = test_struct;
+
+    return 0;
+}
+
+static int quad_setup_tree_root(void **state) {
+    QuadTest *test_struct = test_malloc( sizeof( QuadTest ) );
+    test_struct->q = quad_new();
+    *state = test_struct;
+
+    TNode *root = (TNode *) mem_malloc( sizeof( TNode ) );
+    test_struct->q->qtree->root = root;
+    test_struct->q->qtree->root->name = NULL;
+    test_struct->q->qtree->root->data = NULL;
+    test_struct->q->qtree->root->children = dbllist_new();
 
     return 0;
 }
@@ -41,7 +60,6 @@ static int quad_teardown(void **state) {
 
     return 0;
 }
-
 static void bit_masks(void **state) {
     assert_int_equal( 0x0, _bit_mask_011(0) );
     assert_int_equal( 0x1, _bit_mask_011(1) );
@@ -193,7 +211,7 @@ static void _clr_gos(void *data) {
 void _insert( int err, void* old_data, void* new_data ) {
     if ( err == SUCCESS ) {
         return;
-    } else if ( err == ERROR_NO_REPLACEMENT ) {
+    } else if ( err == WARNING_VALUE_REPLACEMENT ) {
         dbllist_append( (DblLinkedList *) old_data, (DblLinkedList *) new_data );
         // There is just one game object in this list. Pop it and release the list.
         dbllist_remove( (DblLinkedList *) new_data, NULL );
@@ -216,22 +234,34 @@ static void insert_node_into_empty_qtree(void **state) {
     go->w = 1;
     go->h = 1;
 
-    // The data of the tree node is a list of game objects.
     DblLinkedList* gos = dbllist_new();
     dbllist_push( gos, go );
-
     quad_insert( q, go->x, go->y, go->x + go->w, go->y + go->h, gos, _insert );
 
+    // Find the inserted node.
     DblLinkedList* children = NULL;
     TNode* tnode = tree_find( q->qtree, "00.00.00", &children);
 
+    // We get the information from the return value of tree_find.
     assert_string_equal( "00", tnode->name );
     assert_ptr_equal( gos, tnode->data );
     assert_ptr_equal( go, ((DblLinkedList *)tnode->data)->head->data);
 
     tree_remove( q->qtree, NULL, _clr_gos );
+
+    // ToDo: tree_remove(.., NULL, ..) must remove everything
     mem_free( q->qtree->root );
     q->qtree->root = NULL;
+}
+
+// A use case: User adds one object into the empty qtree
+//
+// This test demonstrates also how the user can add arbitrary objects into the
+// tree. In this case, we use integers.
+static void insert_empty_qtree( void ** state ) {
+    QStruct* q = ( ( QuadTest * ) *state )->q;
+
+    // This should be put in a fixture.
 }
 
 static void insert_three_nodes_qtree(void **state) {

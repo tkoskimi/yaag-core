@@ -74,15 +74,15 @@
 #define TREE_MAX_DEPTH 8
 
 // Return values
-#define SUCCESS                 0
-#define ERROR_INVALID_CHAR      -10
-#define ERROR_NAME_TOO_LONG     -15
-#define ERROR_TREE_TOO_DEEP     -20
-#define ERROR_NO_NAME           -25
-#define ERROR_TREE_IS_EMPTY     -30
-#define ERROR_NO_PARENT         -35
-#define ERROR_NO_REPLACEMENT    -40
-#define ERROR_NOT_FOUND         -45
+#define SUCCESS                 	0
+#define WARNING_VALUE_REPLACEMENT	10
+#define ERROR_INVALID_CHAR      	-10
+#define ERROR_NAME_TOO_LONG     	-15
+#define ERROR_TREE_TOO_DEEP     	-20
+#define ERROR_NO_NAME           	-25
+#define ERROR_TREE_IS_EMPTY     	-30
+#define ERROR_NO_PARENT         	-35
+#define ERROR_NOT_FOUND         	-45
 
 typedef struct {
     char *name;

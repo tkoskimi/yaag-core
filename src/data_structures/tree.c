@@ -85,9 +85,9 @@ void* tree_insert( TTree* tree, char* path, void* new_data, int parents, void (*
             // Handle the case where the child is the last one.
             if ( child->data ) {
 #ifdef LOGGING
-                printf("Warning in tree_insert: %d\n. Use tree_find to modify", ERROR_NO_REPLACEMENT );
+                printf("Warning in tree_insert: %d\n. Use tree_find to modify", WARNING_VALUE_REPLACEMENT );
 #endif // LOGGING
-                insert( ERROR_NO_REPLACEMENT, ((TNode *) child->data)->data, new_data );
+                insert( WARNING_VALUE_REPLACEMENT, ((TNode *) child->data)->data, new_data );
             }
         } else {
             if ( is_last || parents ) {
