@@ -43,6 +43,6 @@ int main(int argc, char* argv[]) {
 	// Tests should be added here.
 	dbll_test();
     tree_test();
-    quad_test();
+    qtree_test();
 	//lvl_loader_test(dirvalue);
 }

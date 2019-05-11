@@ -10,7 +10,7 @@ CC = gcc
 
 # define any compile-time flags
 CFLAGS = -Wextra -g
-CFLAGS_TEST =
+CFLAGS_TEST = -DTEST
 
 # define any directories containing header files other than /usr/include
 INCLUDES = -I./include
@@ -90,7 +90,11 @@ test: $(OBJ_MAIN_TEST) $(OBJS) $(OBJS_TEST)
 # the rule(a .c file) and $@: the name of the target of the rule (a .o file) 
 # (see the gnu make manual section about automatic variables)
 .c.o:
-		$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
+ifeq ($(MAKECMDGOALS),test)
+		$(CC) $(CFLAGS) $(CFLAGS_TEST) $(INCLUDES) -c $< -o $@
+else
+		$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+endif
 
 clean:
 		find . -type f \( -iname '*.o' -o -iname '*.out' \) -exec rm {} +

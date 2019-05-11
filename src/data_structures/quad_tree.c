@@ -5,6 +5,7 @@
 // (c) Tuomas Koskimies, 2019
 
 #include <assert.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -15,8 +16,10 @@
 #include "./quad_tree.h"
 #include "./tree.h"
 
+#define _is_empty(x) ((x)->root == NULL)
+
 // Note. The names must not be longer than LEVEL_NAME_MAX_LENGTH (see tree.h).
-char* QUAD_PATHS[] = { "00.", "01.", "10.", "11." };
+char* QTREE_PATHS[] = { "00.", "01.", "10.", "11." };
 
 inline unsigned int _bit_mask_011(unsigned int n) {
     return (n >= sizeof(unsigned) * CHAR_BIT) ? (unsigned) -1 : (1U << n) - 1;
@@ -26,9 +29,9 @@ inline unsigned int _bit_mask_010(unsigned int m, unsigned int n) {
     return ( m == n ) ? 0 : (((unsigned) -1 >> (32 - (n))) & ~((1U << (m)) - 1));
 } 
 
-QStruct* quad_new() {
-    QStruct *q = (QStruct *) mem_malloc( sizeof( QStruct ) );
-    q->qtree = tree_new();
+qtree_t* qtree_new() {
+    qtree_t *q = (qtree_t *) mem_malloc( sizeof( qtree_t ) );
+    q->tree = tree_new();
     q->x0 = 0;
     q->y0 = 0;
     q->x1 = ( 1 << REGION_DIM_IN_BITS ) - 1;
@@ -38,7 +41,7 @@ QStruct* quad_new() {
     return q;
 }
 
-QStruct* quad_new_and_init(
+qtree_t* qtree_init( qtree_t *q,
         unsigned int x0,
         unsigned int y0,
         unsigned int dim_in_bits,
@@ -46,8 +49,6 @@ QStruct* quad_new_and_init(
     assert ( dim_in_bits <= COORDINATE_SIZE_IN_BITS / 2 );
     assert ( depth_of_qtree <= TREE_MAX_DEPTH );
 
-    QStruct *q = (QStruct *) mem_malloc( sizeof( QStruct ) );
-    q->qtree = tree_new();
     q->x0 = x0;
     q->y0 = y0;
     q->x1 = ( 1 << dim_in_bits ) + x0 - 1;
@@ -57,10 +58,12 @@ QStruct* quad_new_and_init(
     return q;
 }
 
-void quad_free( QStruct *q ) {
+void qtree_free( qtree_t *q ) {
+    mem_free( q->tree );
+    mem_free( q );
 }
 
-int quad_point_index( QStruct* q, unsigned int x0, unsigned int y0 ) {
+int qtree_point_index( qtree_t* q, unsigned int x0, unsigned int y0 ) {
     int index = 0;
 
     // If the rectangle is outside of the region, return -1.
@@ -104,13 +107,13 @@ int quad_point_index( QStruct* q, unsigned int x0, unsigned int y0 ) {
     return index;
 }
 
-char* quad_node_path( QStruct* q, int index_tl, int index_br ) {
+char* qtree_node_path( qtree_t* q, int index_tl, int index_br ) {
     if ( index_tl == COORDINATE_OUSIDE || index_br == COORDINATE_OUSIDE ) {
         return NO_QUAD;
     }
     // Reserve space for the name. The path has three letters, e.g., "01."
     // except the last one that ends to the null character, '\0'.
-    char* name = (char *) mem_malloc( 3 * DEPTH_OF_QTREE * sizeof( char ) );
+    char* name = (char *) mem_malloc( ( 3 * q->depth + 1 ) * sizeof( char ) );
     // Initialize the name for the strcat().
     name[0] = '\0';
     // Loop the indexes through until we find a different quadrant or the end.
@@ -127,7 +130,7 @@ char* quad_node_path( QStruct* q, int index_tl, int index_br ) {
         if ( mask_tl != mask_br ) {
             break;
         } 
-        strcat( name, QUAD_PATHS[ mask_tl >> j ] );
+        strcat( name, QTREE_PATHS[ mask_tl >> j ] );
     }
     if ( k < 0 ) {
         k = 0;
@@ -136,38 +139,262 @@ char* quad_node_path( QStruct* q, int index_tl, int index_br ) {
     return name;
 }
 
-void quad_insert(
-        QStruct* q, 
+char** qtree_split_path( char *path ) {
+
+    // Special case. For the root, the path == NULL.
+    if ( path == NULL ) {
+        return NULL;
+    }
+
+    // The number of levels in the path - 1.
+    int num_of_lvls = 0;
+    // The current read index.
+    int index_curr = 0;
+    // The index of the previous '.'.
+    int index_prev = -1;
+    // If 0, there is no errors.
+    int error = 0;
+
+    char** lvl_names = mem_malloc( sizeof( char* ) * TREE_MAX_DEPTH );
+    for ( int i = 0; i < TREE_MAX_DEPTH; i++ ) {
+        lvl_names[i] = NULL;
+    }
+
+    while( 1 ) {
+        char c = path[index_curr];
+#ifdef DEBUG
+        // Do the sanity check.
+        if ( !isalpha(c) && !isdigit(c) && c != '.' && c != '\0' ) {
+            error = ERROR_INVALID_CHAR;
+            break;
+        }
+#endif // DEBUG
+        // '+1' because the last acceptable char is '.', e.g. 'itisamax.'.
+        if ( index_curr - index_prev > LEVEL_NAME_MAX_LENGTH + 1 ) {
+            error = ERROR_NAME_TOO_LONG;
+            break;
+        }
+        if ( num_of_lvls == TREE_MAX_DEPTH ) {
+            error = ERROR_TREE_TOO_DEEP;
+            break;
+        }
+        if ( c == '.' || c == '\0' ) {
+            // If the level has no name, raise the error.
+            if ( index_curr == index_prev + 1 ) {
+                error = ERROR_NO_NAME;
+                break;
+            }
+            // 'index_curr - index_prev' is the length.
+            char *lvl_name = mem_malloc( sizeof( char ) * ( index_curr - index_prev ) );
+            for ( int i = index_prev, j = 0; i < index_curr; i++, j++ ) {
+                lvl_name[ j ] = path[ i + 1 ];
+            }
+            lvl_name[ index_curr - index_prev - 1 ] = '\0';
+            lvl_names[ num_of_lvls++ ] = lvl_name;
+            index_prev = index_curr;
+        }
+        // This will ensure that the loop will end.
+        if ( c == '\0' ) {
+            break;
+        }
+        index_curr += 1;
+    }
+
+    if ( error ) {
+        for( int i = 0; i < TREE_MAX_DEPTH; i++ ) {
+            if ( lvl_names[i] != NULL ) {
+                mem_free( lvl_names[i] );
+            }
+        }
+        mem_free( lvl_names );
+#ifdef LOGGING
+        printf("Error when splitting a path %s: %d\n", path, error);
+#endif // LOGGING
+        return NULL;
+    }
+
+    return lvl_names;
+}
+
+tnode_t* qtree_find( tree_t *tree, char* path, dbllist_t **list ) {
+    assert ( !_is_empty(tree) && TREE_NOROOT );
+
+    // A current node of the tree in this traversal.
+    tnode_t* tree_node = tree->root;
+    // The list where the node is found.
+    dbllist_t *new_list = NULL;
+
+    // Handle special case.
+
+    if ( path == NULL ) {
+        return tree_node;
+    }
+
+    // Names of the hierarchy levels of the tree.
+    char** lvl_names = qtree_split_path( path );
+    // A name of the current level of the tree.
+    char* lvl_name = NULL;
+    // The index to the lvl_names.
+    int index = 0;
+    // The current child (list) node.
+    dblnode_t *child = NULL;
+
+    while( index < TREE_MAX_DEPTH && ( lvl_name = lvl_names[ index ] ) != NULL ) {
+        int found = 0;
+        child = dbllist_head( tree_node->children );
+        while( child ) {
+            if ( strcmp( lvl_name, ((tnode_t *) child->data)->name ) == 0 ) {
+#ifdef LOGGING
+                printf("dblnode_t found: %s\n", lvl_name );
+#endif // LOGGING
+                found = 1;
+                break;
+            }
+            child = child->next;
+        }
+
+        if ( !found ) {
+#ifdef LOGGING
+            printf( "Error in tree_insert: %d\n", ERROR_NOT_FOUND );
+#endif // LOGGING
+            return NULL;
+        }
+
+        new_list = tree_node->children;
+        tree_node = (tnode_t *) child->data;
+        index++;
+    }
+
+    *list = new_list;
+
+    return tree_node;
+}
+
+void* tree_tmp_insert( tree_t* tree, char* path, void* new_data, int parents, void* (*insert)( int, void*, void* ) ) {
+    assert ( !_is_empty(tree) && TREE_NOROOT );
+
+    // A current node of the tree.
+    tnode_t* tree_node = tree->root;
+
+    // The special case: Insert data into the root node. Note that we will
+    // handle this here in order to avoid memory allocations/releases.
+    if ( path == NULL ) {
+        if ( tree_node->data ) {
+#ifdef LOGGING
+            printf("Error in tree_insert: %d\n. Use tree_find to modify", ERROR_NO_REPLACEMENT );
+#endif // LOGGING
+            return NULL;
+        }
+        tree_node->data = new_data;
+        return new_data;                
+    }
+
+    // Names of the levels of the tree.
+    char** lvl_names = qtree_split_path( path );
+    // A name of the level of the tree.
+    char* lvl_name = NULL;
+    // The index to the lvl_names.
+    int index = 0;
+    // If 0, there is no error.
+    int error = SUCCESS;
+
+    // Insert the node(s). Note that the function is not transactional meaning
+    // that it may create parent nodes even the operation is not completed due
+    // to errors.
+    while( !error && index < TREE_MAX_DEPTH && ( lvl_name = lvl_names[ index ] ) != NULL ) {
+        // We need this when deciding whether to create a parent or not.
+        int is_last = index == TREE_MAX_DEPTH - 1 || lvl_names[ index + 1 ] == NULL;
+        // 1 if we find the tree node that has a name lvl_name.
+        int found = 0;
+        // The current list node.
+        dblnode_t *child = dbllist_head( tree_node->children );
+        // Children -> +[dblnode_t]--------------+ -> ...
+        //             | ->data             |
+        //             |  +[tnode_t]--------+ |
+        //             |  | ->data        | |
+        //             |  |  +[void*]---+ | |
+        //             |  |  |          | | |
+        //             :  :  :          : : :
+        while( child ) {
+            if ( strcmp( lvl_name, ((tnode_t *) child->data)->name ) == 0 ) {
+#ifdef LOGGING
+                printf("dblnode_t found: %s\n", lvl_name );
+#endif // LOGGING
+                found = 1;
+                break;
+            }
+            child = child->next;
+        }
+
+        if ( found ) {
+            if ( !is_last ) {
+                tree_node = (tnode_t *) child->data;
+                index++;
+                continue;
+            }
+            // Handle the case where the child is the last one.
+            if ( child->data ) {
+#ifdef LOGGING
+                printf("Warning in tree_insert: %d\n. Use tree_find to modify", -100 );
+#endif // LOGGING
+                insert( -100, ((tnode_t *) child->data)->data, new_data );
+            }
+        } else {
+            if ( is_last || parents ) {
+                tnode_t *new_node = (tnode_t *) mem_malloc( sizeof( tnode_t ) );
+                new_node->name = lvl_name;
+                new_node->data = is_last ? new_data : NULL;
+                new_node->children = dbllist_new();
+                // Insert the new node. Preserve the order.
+                dbllist_push_to_end( tree_node->children, new_node );
+                // Call the insert function.
+                insert( error, NULL, new_node->data );
+                // Move on.
+                tree_node = new_node;
+            } else {
+#ifdef LOGGING
+                printf("Error in tree_insert: %d\n", ERROR_NO_PARENT );
+#endif // LOGGING
+                error = ERROR_NO_PARENT;
+                break;
+            }
+        }
+        index++;
+    }
+
+    if( error ) {
+        _clean_up( lvl_names );
+        return NULL;
+    }
+
+    mem_free( lvl_names );
+
+    return new_data;
+}
+
+void _clean_up( char** names ) {
+    for( int i = 0; i < TREE_MAX_DEPTH; i++ ) {
+        if ( names[i] != NULL ) {
+            mem_free( names[i] );
+        }
+    }
+    mem_free( names );
+}
+
+void qtree_insert(
+        qtree_t* q, 
         int x0,
         int y0,
         int x1,
         int y1,
         void* new_data,
-        void (*insert)( int, void*, void* ) ) {
-    int index_tl = quad_point_index( q, x0, y0 );
-    int index_br = quad_point_index( q, x1, y1 );
-    char* path = quad_node_path( q, index_tl, index_br );
-    tree_insert( q->qtree, path, new_data, 1, insert );
+        void* (*insert)( int, void*, void* ) ) {
+    int index_tl = qtree_point_index( q, x0, y0 );
+    int index_br = qtree_point_index( q, x1, y1 );
+    char* path = qtree_node_path( q, index_tl, index_br );
+    tree_tmp_insert( q->tree, path, new_data, 1, insert );
 }
 
-void* quad_collision( QStruct* q, void (*collide)( void* ) ) {
-}
-
-// void* _quad_collision( DblLinkedList* list, void (*collide)( void* ) ) {
-//     if( !dbllist_is_empty( list ) ) {
-//         TNode* tree_node = (TNode *) list->head->data;
-//         if ( tree_node->children ) {
-//             if ( dbllist_size( tree_node->children ) ){
-//                 _quad_collision( tree_node->children, collide );
-//             }
-
-//         }
-//         if ( tree_node->name ) {
-//             mem_free( tree_node->name );
-//         }
-//         free( tree_node->data );
-//     }
-// }
 /**
  * Four disjoint subquadrants.
  *

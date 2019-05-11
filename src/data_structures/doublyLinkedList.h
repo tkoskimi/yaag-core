@@ -23,49 +23,49 @@
 #define DBLL_LISTISEMPTY	-1
 #define DBLL_NOTFOUND		-10
 
-typedef struct Node {
+typedef struct dblnode_t {
     void *data;
-    struct Node *next;
-    struct Node *prev;
-} Node;
+    struct dblnode_t *next;
+    struct dblnode_t *prev;
+} dblnode_t;
 
 // @todo: This should be moved to the .c file.
-typedef struct DblLinkedList {
+typedef struct dbllist_t {
     int size;
-    Node *head;
-    Node *tail;
-} DblLinkedList;
+    dblnode_t *head;
+    dblnode_t *tail;
+} dbllist_t;
 
-DblLinkedList* dbllist_new();
+dbllist_t* dbllist_new();
 
-void dbllist_free( DblLinkedList* list );
+void dbllist_free( dbllist_t* list );
 
 // Adds a source list (src) to the end of the destination list (dst)
 //
 // @param dst The pointer to the destination list
 // @param src The pointer to the source list
 // @return The destination list
-DblLinkedList* dbllist_append( DblLinkedList* dst, DblLinkedList* src );
+dbllist_t* dbllist_append( dbllist_t* dst, dbllist_t* src );
 
 // Inserts a new node at the beginning of the list
 //
 // @param list The pointer to the list where the node is pushed into
 // @param new_data The data of the node
 // @return The newly inserted node
-Node* dbllist_push( DblLinkedList* list, void* new_data );
+dblnode_t* dbllist_push( dbllist_t* list, void* new_data );
 
 // Inserts a new node at the end of the list
 //
 // @param list The pointer to the list where the node is pushed into
 // @param new_data The data of the node
 // @return The newly inserted node
-Node* dbllist_push_to_end( DblLinkedList* list, void* new_data );
+dblnode_t* dbllist_push_to_end( dbllist_t* list, void* new_data );
 
 // Pops the first node from the list
 //
 // @param list The pointer to the list where the node is popped from
 // @return The pointer to the node, or NULL
-void* dbllist_pop( DblLinkedList *list );
+void* dbllist_pop( dbllist_t *list );
 
 // Removes the node from the list
 //
@@ -73,24 +73,24 @@ void* dbllist_pop( DblLinkedList *list );
 // @param data The pointer to the data of the node. This defines the identity
 //             of the node
 // @return The pointer to the data of the node
-void* dbllist_delete( DblLinkedList *list, void *data );
+void* dbllist_delete( dbllist_t *list, void *data );
 
 // @param list The pointer to the list
 // @return Zero if the list is empty
-int dbllist_is_empty( DblLinkedList *list );
+int dbllist_is_empty( dbllist_t *list );
 
 // @param list The pointer to the list
 // @return The size of the list
-int dbllist_size( DblLinkedList *list );
+int dbllist_size( dbllist_t *list );
 
 // @param list The pointer to the list
 // @return The pointer to the first element of the list
-Node* dbllist_head( DblLinkedList *list );
+dblnode_t* dbllist_head( dbllist_t *list );
 
 // @param list The pointer to the list
 // @return The pointer to the last element of the list
-Node* dbllist_tail( DblLinkedList *list );
+dblnode_t* dbllist_tail( dbllist_t *list );
 
-void dbllist_remove( DblLinkedList *list, void (*free)(void *) );
+void dbllist_remove( dbllist_t *list, void (*free)(void *) );
 
 #endif // _dbllist_

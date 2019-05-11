@@ -1,0 +1,1 @@
+void lvl_loader_test(char *assets);

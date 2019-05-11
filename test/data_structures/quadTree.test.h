@@ -1,1 +1,1 @@
-int quad_test();
+int qtree_test();

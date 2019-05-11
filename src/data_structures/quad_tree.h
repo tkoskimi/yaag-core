@@ -32,14 +32,14 @@
 #define COORDINATE_OUSIDE    -1
 
 typedef struct {
-    TTree *qtree;
+    tree_t *tree;
     unsigned int x0;
     unsigned int y0;
     unsigned int x1;
     unsigned int y1;
     unsigned int dim;
     unsigned int depth;
-} QStruct;
+} qtree_t;
 
 // Returns a bit mask whose first n bits are 1s
 //
@@ -59,15 +59,15 @@ unsigned int _bit_mask_011(unsigned int n);
 //      c-macro-to-create-a-bit-mask-possible-and-have-i-found-a-gcc-bug
 unsigned int _bit_mask_010(unsigned int m, unsigned int n);
 
-QStruct* quad_new();
+qtree_t* qtree_new();
 
-QStruct* quad_new_and_init(
-    unsigned int x0,
-    unsigned int y0,
-    unsigned int dim_in_bits,
-    unsigned int depth_of_qtree );
+qtree_t* qtree_init( qtree_t *q,
+        unsigned int x0,
+        unsigned int y0,
+        unsigned int dim_in_bits,
+        unsigned int depth_of_qtree );
 
-void quad_free( QStruct *q );
+void qtree_free( qtree_t *q );
 
 // Returns an index of a quadrants that the point is belonging to
 //
@@ -100,7 +100,7 @@ void quad_free( QStruct *q );
 //
 // For example, if x0s == 0x2 and y0s == 0x3, the index will be b1101 == 0xd.
 // @see Test cases
-int quad_point_index( QStruct* qstruct, unsigned int x0, unsigned int y0 );
+int qtree_point_index( qtree_t* qtree_t, unsigned int x0, unsigned int y0 );
 
 // Returns a path of the quadrant that contains both points, tl and br
 //
@@ -109,24 +109,17 @@ int quad_point_index( QStruct* qstruct, unsigned int x0, unsigned int y0 );
 // @param index_br The index of the quadrant that contains the br.
 // @return The path, e.g. "00.01"; NULL if there is no quadrant that contains the
 //      tl and/or br.
-char* quad_node_path( QStruct* q, int index_tl, int index_br );
-
-// Inserts a new node to the quad tree
-//
-// @param q The pointer to the quad structure.
-// @param new_data The data to be added to the node.
-// @param insert The pointer to a function that is called when inserting the data.
-void quad_insert(
-    QStruct* q,
-    int x0,
-    int y0,
-    int x1,
-    int y1,
-    void* new_data,
-    void (*)( int, void*, void* )
-);
-
-// [Will be removed]
-void* quad_collision( QStruct* q, void (*collide)( void* ) );
-
+char* qtree_node_path( qtree_t* q, int index_tl, int index_br );
+char** qtree_split_path( char *path );
+tnode_t* qtree_find( tree_t *tree, char* path, dbllist_t **list );
+void* tree_tmp_insert( tree_t* tree, char* path, void* new_data, int parents, void* (*insert)( int, void*, void* ) );
+void _clean_up( char** names );
+void qtree_insert(
+        qtree_t* q, 
+        int x0,
+        int y0,
+        int x1,
+        int y1,
+        void* new_data,
+        void* (*insert)( int, void*, void* ) );
 #endif // _quadtree_

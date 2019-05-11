@@ -8,7 +8,7 @@
 #include "../../src/data_structures/doublyLinkedList.h"
 
 struct DblTest {
-    DblLinkedList* list;
+    dbllist_t* list;
 };
 
 static int dbll_setup(void **state) {
@@ -27,15 +27,15 @@ static int dbll_teardown(void **state) {
 }
 
 static void empty_list(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
     assert_null( dbllist_head( list ) );
     assert_null( dbllist_tail( list ) );
     assert_true( dbllist_is_empty( list ) );
 }
 
 static void append_to_two_empty_lists(void **state) {
-    DblLinkedList* dst = ( ( struct DblTest * ) *state )->list;
-    DblLinkedList* src = dbllist_new();
+    dbllist_t* dst = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* src = dbllist_new();
 
     dbllist_append( dst, src );
     assert_true( dbllist_size( dst ) == 0 );
@@ -44,13 +44,13 @@ static void append_to_two_empty_lists(void **state) {
 }
 
 static void append_to_one_empty_list(void **state) {
-    DblLinkedList* dst = ( ( struct DblTest * ) *state )->list;
-    DblLinkedList* src = dbllist_new();
+    dbllist_t* dst = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* src = dbllist_new();
 
     int *one = test_malloc( sizeof( int ) );
     *one = 1;
 
-    Node* node1 = dbllist_push( dst, one );
+    dblnode_t* node1 = dbllist_push( dst, one );
 
     assert_int_equal( dbllist_size( dst ), 1 );
     assert_int_equal( dbllist_size( src ), 0 );
@@ -67,8 +67,8 @@ static void append_to_one_empty_list(void **state) {
 }
 
 static void append_to_nonempty_list(void **state) {
-    DblLinkedList* dst = ( ( struct DblTest * ) *state )->list;
-    DblLinkedList* src = dbllist_new();
+    dbllist_t* dst = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* src = dbllist_new();
 
     int *one = test_malloc( sizeof( int ) );
     *one = 1;
@@ -76,8 +76,8 @@ static void append_to_nonempty_list(void **state) {
     int *two = test_malloc( sizeof( int ) );
     *two = 2;
 
-    Node* node1 = dbllist_push( dst, one );
-    Node* node2 = dbllist_push( src, two );
+    dblnode_t* node1 = dbllist_push( dst, one );
+    dblnode_t* node2 = dbllist_push( src, two );
 
     assert_int_equal( dbllist_size( dst ), 1 );
     assert_int_equal( dbllist_size( src ), 1 );
@@ -101,12 +101,12 @@ static void append_to_nonempty_list(void **state) {
 }
 
 static void push_to_empty(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
     int *value = test_malloc( sizeof( int ) );
 
     // Insert one value
     *value = 1;
-    struct Node* node = dbllist_push( list, value );
+    struct dblnode_t* node = dbllist_push( list, value );
 
     assert_false( dbllist_is_empty( list ) );
     assert_int_equal( dbllist_size( list ), 1 );
@@ -119,14 +119,14 @@ static void push_to_empty(void **state) {
 }
 
 static void push_to_non_empty(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
 
     *zero = 0;
     *one = 1;
-    struct Node* node0 = dbllist_push( list, zero );
-    struct Node* node1 = dbllist_push( list, one );
+    struct dblnode_t* node0 = dbllist_push( list, zero );
+    struct dblnode_t* node1 = dbllist_push( list, one );
 
     assert_false( dbllist_is_empty( list ) );
     assert_int_equal( dbllist_size( list ), 2 );
@@ -142,12 +142,12 @@ static void push_to_non_empty(void **state) {
 }
 
 static void push_end_to_empty(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
     int *value = test_malloc( sizeof( int ) );
 
     // Insert one value
     *value = 1;
-    struct Node* node = dbllist_push_to_end( list, value );
+    struct dblnode_t* node = dbllist_push_to_end( list, value );
 
     assert_false( dbllist_is_empty( list ) );
     assert_int_equal( dbllist_size( list ), 1 );
@@ -160,14 +160,14 @@ static void push_end_to_empty(void **state) {
 }
 
 static void push_end_to_non_empty(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
 
     *zero = 0;
     *one = 1;
-    struct Node* node0 = dbllist_push_to_end( list, zero );
-    struct Node* node1 = dbllist_push_to_end( list, one );
+    struct dblnode_t* node0 = dbllist_push_to_end( list, zero );
+    struct dblnode_t* node1 = dbllist_push_to_end( list, one );
 
     assert_false( dbllist_is_empty( list ) );
     assert_int_equal( dbllist_size( list ), 2 );
@@ -183,12 +183,12 @@ static void push_end_to_non_empty(void **state) {
 }
 
 static void pop_to_empty(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
 
     *zero = 0;
 
-    struct Node* node0 = dbllist_push( list, zero );
+    struct dblnode_t* node0 = dbllist_push( list, zero );
     void *data = dbllist_pop( list );
 
     assert_true( dbllist_is_empty( list ) );
@@ -201,7 +201,7 @@ static void pop_to_empty(void **state) {
 }
 
 static void pop_to_non_empty(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
     int *two = test_malloc( sizeof( int ) );
@@ -210,9 +210,9 @@ static void pop_to_non_empty(void **state) {
     *one = 1;
     *two = 2;
 
-    struct Node* node0 = dbllist_push( list, zero );
-    struct Node* node1 = dbllist_push( list, one );
-    struct Node* node2 = dbllist_push( list, two );
+    struct dblnode_t* node0 = dbllist_push( list, zero );
+    struct dblnode_t* node1 = dbllist_push( list, one );
+    struct dblnode_t* node2 = dbllist_push( list, two );
 
     void *data = dbllist_pop( list );
 
@@ -232,7 +232,7 @@ static void pop_to_non_empty(void **state) {
 }
 
 static void remove_from_empty(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
 
     int *zero = test_malloc( sizeof( int ) );
 
@@ -245,13 +245,13 @@ static void remove_from_empty(void **state) {
 }
 
 static void remove_the_first(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
 
     int *zero = test_malloc( sizeof( int ) );
 
     *zero = 0;
 
-    struct Node* node0 = dbllist_push( list, zero );
+    struct dblnode_t* node0 = dbllist_push( list, zero );
 
     assert_int_equal( dbllist_size( list ), 1 );
     assert_ptr_equal( zero, dbllist_delete( list, zero ) );
@@ -263,7 +263,7 @@ static void remove_the_first(void **state) {
 }
 
 static void remove_the_last(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
     int *two = test_malloc( sizeof( int ) );
@@ -272,9 +272,9 @@ static void remove_the_last(void **state) {
     *one = 1;
     *two = 2;
 
-    struct Node* node0 = dbllist_push( list, zero );
-    struct Node* node1 = dbllist_push( list, one );
-    struct Node* node2 = dbllist_push( list, two );
+    struct dblnode_t* node0 = dbllist_push( list, zero );
+    struct dblnode_t* node1 = dbllist_push( list, one );
+    struct dblnode_t* node2 = dbllist_push( list, two );
 
     assert_int_equal( dbllist_size( list ), 3 );
     assert_ptr_equal( zero, dbllist_delete( list, zero ) );
@@ -290,7 +290,7 @@ static void remove_the_last(void **state) {
 }
 
 static void remove_the_middle(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
     int *two = test_malloc( sizeof( int ) );
@@ -299,9 +299,9 @@ static void remove_the_middle(void **state) {
     *one = 1;
     *two = 2;
 
-    struct Node* node0 = dbllist_push( list, zero );
-    struct Node* node1 = dbllist_push( list, one );
-    struct Node* node2 = dbllist_push( list, two );
+    struct dblnode_t* node0 = dbllist_push( list, zero );
+    struct dblnode_t* node1 = dbllist_push( list, one );
+    struct dblnode_t* node2 = dbllist_push( list, two );
 
     assert_int_equal( dbllist_size( list ), 3 );
     assert_ptr_equal( node2->next, node1 );
@@ -321,7 +321,7 @@ static void remove_the_middle(void **state) {
 }
 
 static void list_clear(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
     int *two = test_malloc( sizeof( int ) );
@@ -330,9 +330,9 @@ static void list_clear(void **state) {
     *one = 1;
     *two = 2;
 
-    struct Node* node0 = dbllist_push( list, zero );
-    struct Node* node1 = dbllist_push( list, one );
-    struct Node* node2 = dbllist_push( list, two );
+    struct dblnode_t* node0 = dbllist_push( list, zero );
+    struct dblnode_t* node1 = dbllist_push( list, one );
+    struct dblnode_t* node2 = dbllist_push( list, two );
 
     dbllist_remove( list, NULL );
 
@@ -349,7 +349,7 @@ static void release_node( void* data ) {
 }
 
 static void list_clear_nodes(void **state) {
-    DblLinkedList* list = ( ( struct DblTest * ) *state )->list;
+    dbllist_t* list = ( ( struct DblTest * ) *state )->list;
     int *zero = test_malloc( sizeof( int ) );
     int *one = test_malloc( sizeof( int ) );
     int *two = test_malloc( sizeof( int ) );
@@ -358,9 +358,9 @@ static void list_clear_nodes(void **state) {
     *one = 1;
     *two = 2;
 
-    struct Node* node0 = dbllist_push( list, zero );
-    struct Node* node1 = dbllist_push( list, one );
-    struct Node* node2 = dbllist_push( list, two );
+    struct dblnode_t* node0 = dbllist_push( list, zero );
+    struct dblnode_t* node1 = dbllist_push( list, one );
+    struct dblnode_t* node2 = dbllist_push( list, two );
 
     dbllist_remove( list, release_node );
 

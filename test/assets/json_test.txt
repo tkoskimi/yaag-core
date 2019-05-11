@@ -1,0 +1,9 @@
+"version":"1.0.1"
+
+"objects":[
+	{"type":"attacker", "path":"a.b.c" "x":1.0 "y":2.0 "v":1 "d":2 }
+]
+
+"settings":[
+	"world_x":12.0
+]

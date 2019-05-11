@@ -13,22 +13,22 @@
 
 #define _is_empty(x) ((x)->size == 0)
 
-DblLinkedList* dbllist_new() {
-    DblLinkedList *list = (DblLinkedList *) mem_malloc( sizeof( DblLinkedList ) ); 
+dbllist_t* dbllist_new() {
+    dbllist_t *list = (dbllist_t *) mem_malloc( sizeof( dbllist_t ) ); 
     list->size = 0;
     list->head = NULL;
     list->tail = NULL;
     return list;
 }
 
-void dbllist_free( DblLinkedList* list ) {
+void dbllist_free( dbllist_t* list ) {
     assert ( _is_empty(list) && DBLL_RELEASENONEMPTYLIST );
     mem_free(list);
 }
 
-DblLinkedList* dbllist_append( DblLinkedList* dst, DblLinkedList* src ) {
+dbllist_t* dbllist_append( dbllist_t* dst, dbllist_t* src ) {
     if ( src != NULL && !_is_empty( src ) ) {
-        Node *node = src->head;
+        dblnode_t *node = src->head;
         while ( node != NULL ) {
             dbllist_push_to_end( dst, node->data );
             node = node->next;
@@ -37,10 +37,10 @@ DblLinkedList* dbllist_append( DblLinkedList* dst, DblLinkedList* src ) {
     return dst;
 }
 
-Node* dbllist_push( DblLinkedList* list, void* new_data ) {
+dblnode_t* dbllist_push( dbllist_t* list, void* new_data ) {
     assert( new_data != NULL && DBLL_NEWNULL );
 
-    Node *node = (Node*) mem_malloc( sizeof( Node ) );
+    dblnode_t *node = (dblnode_t*) mem_malloc( sizeof( dblnode_t ) );
     node->data = new_data;
     node->next = list->head;
     node->prev = NULL;
@@ -60,10 +60,10 @@ Node* dbllist_push( DblLinkedList* list, void* new_data ) {
     return node;
 }
 
-Node* dbllist_push_to_end( DblLinkedList* list, void* new_data ) {
+dblnode_t* dbllist_push_to_end( dbllist_t* list, void* new_data ) {
     assert( new_data != NULL && DBLL_NEWNULL );
 
-    Node *node = (Node*) mem_malloc( sizeof( Node ) );
+    dblnode_t *node = (dblnode_t*) mem_malloc( sizeof( dblnode_t ) );
     node->data = new_data;
     node->next = NULL;
     node->prev = list->tail;
@@ -83,11 +83,11 @@ Node* dbllist_push_to_end( DblLinkedList* list, void* new_data ) {
     return node;
 }
 
-void* dbllist_pop( DblLinkedList *list ) {
+void* dbllist_pop( dbllist_t *list ) {
     assert( !_is_empty(list) && DBLL_POPEMPTY );
 
     if ( !_is_empty(list) ) {
-        Node *node = list->head;
+        dblnode_t *node = list->head;
         void *data = node->data;
         
         // If the last element is popped, then the list will have no more the
@@ -111,9 +111,9 @@ void* dbllist_pop( DblLinkedList *list ) {
     }
 }
 
-void* dbllist_delete( DblLinkedList *list, void *data ) {
+void* dbllist_delete( dbllist_t *list, void *data ) {
     if ( !_is_empty(list) ) {
-        Node *node = list->head;
+        dblnode_t *node = list->head;
 
         while( 1 ) {
             if ( node->data == data ) {
@@ -152,24 +152,24 @@ void* dbllist_delete( DblLinkedList *list, void *data ) {
     }
 };
 
-int dbllist_is_empty( DblLinkedList *list ) {
+int dbllist_is_empty( dbllist_t *list ) {
     return list->size == 0;
 }
 
-int dbllist_size( DblLinkedList *list ) {
+int dbllist_size( dbllist_t *list ) {
     return list->size;
 }
 
-Node* dbllist_head( DblLinkedList *list ) {
+dblnode_t* dbllist_head( dbllist_t *list ) {
     return list->head;
 }
 
-Node* dbllist_tail( DblLinkedList *list ) {
+dblnode_t* dbllist_tail( dbllist_t *list ) {
     return list->tail;
 }
 
-void dbllist_remove( DblLinkedList *list, void (*free)(void *) ) {
-    Node *node = NULL;
+void dbllist_remove( dbllist_t *list, void (*free)(void *) ) {
+    dblnode_t *node = NULL;
     // Remove nodes from the head until the list is empty
     while( ( node = list->head ) != NULL ) {
 #ifdef PRESERVE_CONSISTENCY

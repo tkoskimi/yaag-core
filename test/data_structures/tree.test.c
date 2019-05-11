@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <cmocka.h>
 
 #include "../../src/data_structures/tree.h"
@@ -10,503 +11,303 @@
 #include "../../src/defs.h"
 #include "../../src/mem.h"
 
+#ifdef UNIT_TESTING
+extern void* _test_malloc(const size_t size, const char* file, const int line);
+#define malloc(size) _test_malloc(size, __FILE__, __LINE__)
+#endif
 typedef struct {
-    TTree* tree;
-} TreeTest;
+    tree_t* tree;
+} tree_test_t;
 
-static TNode *get_tnode_from_heads( TNode *root, int depth ) {
-    TNode *node = root;
-    for( int i = 0; i < depth; i++ ) {
-        node = (TNode *) ( (Node *) dbllist_head( node->children ) )->data;
-    }
-    return node;
-}
+//  ****************************************
+//  Fixtures
+//  ****************************************
 
-static TNode *get_tnode_from_tails( TNode *root, int depth ) {
-    TNode *node = root;
-    for( int i = 0; i < depth; i++ ) {
-        node = (TNode *) ( (Node *) dbllist_tail( node->children ) )->data;
-    }
-    return node;
-}
-
-static int tree_setup(void **state) {
-    TreeTest *test_struct = test_malloc( sizeof( TreeTest ) );
-    test_struct->tree = tree_new();
+static int setup(void **state) {
+    tree_test_t *test_struct = malloc( sizeof( tree_test_t ) );
     *state = test_struct;
 
     return 0;
 }
 
-static int tree_teardown(void **state) {
-    tree_free( ( ( TreeTest * ) *state )->tree );
-    test_free( *state );
+static int teardown(void **state) {
+    free( *state );
 
     return 0;
 }
 
-static void parse_ok_path_1(void **state) {
-    char *path = "a.b.c";
-    char** strs = tree_split_path( path );
-    assert_string_equal( "a", strs[0] );
-    assert_string_equal( "b", strs[1] );
-    assert_string_equal( "c", strs[2] );
-    assert_null( strs[3] );
-    return;
-}
+//  ****************************************
+//  Misc functions
+//  ****************************************
 
-static void parse_ok_path_2(void **state) {
-    char *path = "itisamax.b";
-    char** strs = tree_split_path( path );
-    assert_string_equal( "itisamax", strs[0] );
-    assert_string_equal( "b", strs[1] );
-    return;
-}
-
-static void parse_ok_path_3(void **state) {
-    char *path = "a";
-    char** strs = tree_split_path( path );
-    assert_string_equal( "a", strs[0] );
-    assert_null( strs[1] );
-    return;
-}
-
-static void parse_nok_path_1(void **state) {
-    char *path = "a.";
-    char** strs = tree_split_path( path );
-    assert_null( strs );
-    return;
-}
-
-static void parse_nok_path_2(void **state) {
-    char *path = ".a";
-    char** strs = tree_split_path( path );
-    assert_null( strs );
-    return;
-}
-
-static void parse_nok_path_3(void **state) {
-    char *path = "thisistoo.b";
-    char** strs = tree_split_path( path );
-    assert_null( strs );
-    return;
-}
-
-static void parse_deep_tree(void **state) {
-    char *path = "a.b.c.d.e.f.g.h";
-    char** strs = tree_split_path( path );
-    assert_string_equal( "a", strs[0] );
-    assert_string_equal( "b", strs[1] );
-    assert_string_equal( "c", strs[2] );
-    assert_string_equal( "d", strs[3] );
-    assert_string_equal( "e", strs[4] );
-    assert_string_equal( "f", strs[5] );
-    assert_string_equal( "g", strs[6] );
-    assert_string_equal( "h", strs[7] );
-    return;
-}
-
-static void parse_tree_too_deep(void **state) {
-    char *path = "a.b.c.d.e.f.g.h.i";
-    char** strs = tree_split_path( path );
-    assert_null( strs );
-    return;
-}
-
-static void insert( int value, void *old_data, void *new_data ) {
-}
-
-static void insert_node_into_empty_tree(void **state) {
-    TTree* tree = ( ( TreeTest * ) *state )->tree;
-
-    TNode *root = (TNode *) test_malloc( sizeof( TNode ) );
-    tree->root = root;
-    tree->root->name = NULL;
-    tree->root->data = NULL;
-    tree->root->children = dbllist_new();
-
-    void* ret_value = NULL;
-    char *path = "a";
-    int *zero = test_malloc( sizeof( int ) );
-
-    // Set data
-    *zero = 0;
-
-    ret_value = tree_insert( tree, path, zero, 0, insert );
-
-    TNode* node = (TNode *) dbllist_tail( tree->root->children )->data;
-    assert_int_equal( 1, dbllist_size( tree->root->children ) );
-    assert_string_equal( "a", node->name );
-    assert_ptr_equal( zero, node->data );
-    assert_true( dbllist_is_empty( node->children ) );
-
-    dbllist_remove( tree->root->children, NULL );
-    test_free( zero );
-    test_free( root );
-    tree->root = NULL;
-    return;
-}
-
-static void insert_node_into_nonempty_tree(void **state) {
-    TTree* tree = ( ( TreeTest * ) *state )->tree;
-
-    TNode *root = (TNode *) test_malloc( sizeof( TNode ) );
-    tree->root = root;
-    tree->root->name = NULL;
-    tree->root->data = NULL;
-    tree->root->children = dbllist_new();
-
-    void* ret_value = NULL;
-    char *path = "a.b";
-    int *zero = test_malloc( sizeof( int ) );
-
-    // Set data
-    *zero = 0;
-
-    // Parents flag is off
-
-    ret_value = tree_insert( tree, path, zero, 0, insert );
-
-    assert_null( ret_value );
-    assert_true( dbllist_is_empty( tree->root->children ) );
-
-    // Parents flag is on
-
-    ret_value = tree_insert( tree, path, zero, 1, insert );
-    assert_ptr_equal( zero, ret_value );
-    assert_string_equal( "a", get_tnode_from_tails( root, 1 )->name );
-    assert_string_equal( "b", get_tnode_from_tails( root, 2 )->name );
-    assert_ptr_equal( zero, get_tnode_from_tails( root, 2 )->data );
-
-    dbllist_remove( get_tnode_from_tails( root, 2 )->children, NULL );
-    mem_free( get_tnode_from_tails( root, 2 )->name );
-    dbllist_remove( get_tnode_from_tails( root, 1 )->children, NULL );
-    mem_free( get_tnode_from_tails( root, 1 )->name );
-    dbllist_remove( tree->root->children, NULL );
-    test_free( zero );
-    test_free( root );
-    tree->root = NULL;
-    return;
-}
-
-static void insert_two_nodes(void **state) {
-    TTree* tree = ( ( TreeTest * ) *state )->tree;
-
-    TNode *root = (TNode *) test_malloc( sizeof( TNode ) );
-    tree->root = root;
-    tree->root->name = NULL;
-    tree->root->data = NULL;
-    tree->root->children = dbllist_new();
-
-    void* ret_value = NULL;
-    char *path1 = "a.b";
-    char *path2 = "a.c";
-    int *zero = test_malloc( sizeof( int ) );
-    int *one = test_malloc( sizeof( int ) );
-
-    // Set data
-    *zero = 0;
-    *one = 0;
-
-    // Parents flag is on
-
-    ret_value = tree_insert( tree, path1, zero, 1, insert );
-    assert_ptr_equal( zero, ret_value );
-    
-    ret_value = tree_insert( tree, path2, one, 1, insert );
-    assert_ptr_equal( one, ret_value );
-
-    assert_string_equal( "a", get_tnode_from_tails( root, 1 )->name );
-    assert_string_equal( "b", get_tnode_from_heads( root, 2 )->name );
-    assert_string_equal( "c", get_tnode_from_tails( root, 2 )->name );
-    assert_ptr_equal( zero, get_tnode_from_heads( root, 2 )->data );
-    assert_ptr_equal( one, get_tnode_from_tails( root, 2 )->data );
-
-    dbllist_remove( get_tnode_from_tails( root, 2 )->children, NULL );
-    mem_free( get_tnode_from_tails( root, 2 )->name );
-    dbllist_remove( get_tnode_from_heads( root, 2 )->children, NULL );
-    mem_free( get_tnode_from_heads( root, 2 )->name );
-    dbllist_remove( get_tnode_from_tails( root, 1 )->children, NULL );
-    mem_free( get_tnode_from_tails( root, 1 )->name );
-    dbllist_remove( tree->root->children, NULL );
-    test_free( one );
-    test_free( zero );
-    test_free( root );
-    tree->root = NULL;
-    return;
-}
-
-static void insert_node_and_do_replacement(void **state) {
-    char *path = "a.b.c.d.e.f.g.h.i";
-    char** strs = tree_split_path( path );
-    assert_null( strs );
-    return;
-}
-
-static void find_a_node_from_2nd_level(void **state) {
-    TTree* tree = ( ( TreeTest * ) *state )->tree;
-
-    TNode *root = (TNode *) test_malloc( sizeof( TNode ) );
-    tree->root = root;
-    tree->root->name = NULL;
-    tree->root->data = NULL;
-    tree->root->children = dbllist_new();
-
-    void* ret_value = NULL;
-    char *path = "a.b";
-    int *zero = test_malloc( sizeof( int ) );
-
-    // Set data
-    *zero = 0;
-
-    ret_value = tree_insert( tree, path, zero, 1, insert );
-    assert_ptr_equal( zero, ret_value );
-    assert_string_equal( "a", get_tnode_from_tails( root, 1 )->name );
-    assert_string_equal( "b", get_tnode_from_tails( root, 2 )->name );
-    assert_ptr_equal( zero, get_tnode_from_tails( root, 2 )->data );
-
-    TNode *tree_node = NULL;
-    DblLinkedList *list = NULL;
-
-    // The root.
-    tree_node = tree_find( tree, NULL, &list );
-    assert_null( tree_node->name );
-    assert_null( tree_node->data );
-    assert_int_equal( 1, dbllist_size( tree_node->children ) );
-    assert_ptr_equal( list, tree_node->children );
-
-    // The 1st level.
-    list = NULL;
-    tree_node = tree_find( tree, "a", &list );
-
-    assert_int_equal( 1, dbllist_size( list ) );
-    assert_string_equal( "a", tree_node->name );
-    assert_null( tree_node->data );
-    assert_int_equal( 1, dbllist_size( tree_node->children ) );
-    assert_ptr_equal( list, root->children );
-
-    // The 2nd level.
-    list = NULL;
-    tree_node = tree_find( tree, "a.b", &list );
-    assert_string_equal( "b", tree_node->name );
-    assert_ptr_equal( zero, tree_node->data );
-    assert_int_equal( 0, dbllist_size( tree_node->children ) );
-    assert_ptr_equal( list, get_tnode_from_tails( root, 1 )->children );
-
-    // Not found in the 1st level.
-    list = NULL;
-    tree_node = tree_find( tree, "c", &list );
-    assert_null( tree_node );
-    assert_null( list );
-
-    // Not found in the 1st level.
-    list = NULL;
-    tree_node = tree_find( tree, "a.c", &list );
-    assert_null( tree_node );
-    assert_null( list );
-
-    dbllist_remove( get_tnode_from_tails( root, 2 )->children, NULL );
-    mem_free( get_tnode_from_tails( root, 2 )->name );
-    dbllist_remove( get_tnode_from_tails( root, 1 )->children, NULL );
-    mem_free( get_tnode_from_tails( root, 1 )->name );
-    dbllist_remove( tree->root->children, NULL );
-    test_free( zero );
-    test_free( root );
-    tree->root = NULL;
-    return;
-}
-
-static void clr_data(void *data) {
-    if (data) {
-        test_free( data );
+static void clr_mem_data( void *data ) {
+    if ( data ) {
+        mem_free( data );
     }
 }
 
-static void remove_tree(void **state) {
-    TTree* tree = ( ( TreeTest * ) *state )->tree;
-
-    TNode *root = (TNode *) test_malloc( sizeof( TNode ) );
-    tree->root = root;
-    tree->root->name = NULL;
-    tree->root->data = NULL;
-    tree->root->children = dbllist_new();
-
-    void* ret_value = NULL;
-    char *path = "a.b";
-    int *zero = test_malloc( sizeof( int ) );
-
-    // Set data
-    *zero = 0;
-
-    // Parents flag is on
-    ret_value = tree_insert( tree, path, zero, 1, insert );
-    TNode* b = get_tnode_from_tails( root, 2 );
-    TNode* a = get_tnode_from_tails( root, 1 );
-
-#ifdef LOGGING
-    printf("Original addresses\n");
-    printf("%s: %lx\n", "zero", (long unsigned int) zero);
-
-    printf("%s: %lx\n", "root", (long unsigned int) root);
-    printf("%s: %lx\n", "root's children", (long unsigned int) root->children);
-    printf("%s: %lx\n", "a", (long unsigned int) a);
-    printf("%s: %lx\n", "a's name", (long unsigned int) a->name);
-    printf("%s: %lx\n", "a's children", (long unsigned int) a->children);
-    printf("%s: %lx\n", "b", (long unsigned int) b);
-    printf("%s: %lx\n", "b's name", (long unsigned int) b->name);
-    printf("%s: %lx\n", "b's children", (long unsigned int) b->children);
-#endif
-
-    assert_ptr_equal( zero, ret_value );
-
-    tree_remove( tree, NULL, clr_data );
-
-    test_free( root );
-    tree->root = NULL;
-
-    return;
+static tree_t* setup_empty_tree( tree_test_t* tt ) {
+    return ( tt->tree = tree_new() );
 }
 
-static void remove_subtree(void **state) {
-    TTree* tree = ( ( TreeTest * ) *state )->tree;
-
-    TNode *root = (TNode *) test_malloc( sizeof( TNode ) );
-    tree->root = root;
-    tree->root->name = NULL;
-    tree->root->data = NULL;
-    tree->root->children = dbllist_new();
-
-    char *path = NULL;
-
-    void* ret_value = NULL;
-    path = "a.b";
-    int *zero = test_malloc( sizeof( int ) );
-    *zero = 0;
-    ret_value = tree_insert( tree, path, zero, 1, insert );
-
-    assert_ptr_equal( zero, ret_value );
-
-    path = "a.c";
-    int *one = test_malloc( sizeof( int ) );
-    *one = 0;
-    ret_value = tree_insert( tree, path, one, 1, insert );
-
-    assert_ptr_equal( one, ret_value );
-
-    TNode* c = get_tnode_from_heads( root, 2 );
-    TNode* b = get_tnode_from_tails( root, 2 );
-    TNode* a = get_tnode_from_tails( root, 1 );
-
-#ifdef LOGGING
-    printf("Original addresses\n");
-    printf("%s: %lx\n", "zero", (long unsigned int) zero);
-
-    printf("%s: %lx\n", "root", (long unsigned int) root);
-    printf("%s: %lx\n", "root's children", (long unsigned int) root->children);
-    printf("%s: %lx\n", "a", (long unsigned int) a);
-    printf("%s: %lx\n", "a's name", (long unsigned int) a->name);
-    printf("%s: %lx\n", "a's children", (long unsigned int) a->children);
-    printf("%s: %lx\n", "b", (long unsigned int) b);
-    printf("%s: %lx\n", "b's name", (long unsigned int) b->name);
-    printf("%s: %lx\n", "b's children", (long unsigned int) b->children);
-    printf("%s: %lx\n", "c", (long unsigned int) c);
-    printf("%s: %lx\n", "c's name", (long unsigned int) c->name);
-    printf("%s: %lx\n", "c's children", (long unsigned int) c->children);
-#endif
-
-    tree_remove( tree, "a", clr_data );
-
-    assert_int_equal( 0, dbllist_size( root->children ) );
-
-    dbllist_remove( tree->root->children, NULL );
-    test_free( root );
-    tree->root = NULL;
-
-    return;
+static tree_t* setup_tree_with_root( tree_test_t* tt, tnode_t* root ) {
+    tt->tree = tree_new();
+    tt->tree->root = root;
+    return tt->tree;
 }
 
-static void tree_2_list(void **state) {
-    TTree* tree = ( ( TreeTest * ) *state )->tree;
+static tnode_t* new_tnode( char* name, int value ) {
+    tnode_t* new_tnode = ( tnode_t* ) test_malloc( sizeof( tnode_t ) );
 
-    int *minus_one = test_malloc( sizeof( int ) );
-    *minus_one = -1;
+    int* data = ( int* ) test_malloc( sizeof( int ) );
+    *data = value;
 
-    TNode *root = (TNode *) test_malloc( sizeof( TNode ) );
-    tree->root = root;
-    tree->root->name = NULL;
-    tree->root->data = minus_one;
-    tree->root->children = dbllist_new();
+    new_tnode->name = name;
+    new_tnode->data = data;
+    new_tnode->parent = NULL;
+    new_tnode->children = dbllist_new();
 
-    char *path = NULL;
-    void* ret_value = NULL;
-
-    path = "a";
-    int *zero = test_malloc( sizeof( int ) );
-    *zero = 0;
-    ret_value = tree_insert( tree, path, zero, 1, insert );
-
-    assert_ptr_equal( zero, ret_value );
-
-    path = "a.b";
-    int *one = test_malloc( sizeof( int ) );
-    *one = 1;
-    ret_value = tree_insert( tree, path, one, 1, insert );
-
-    assert_ptr_equal( one, ret_value );
-
-    path = "a.c";
-    int *two = test_malloc( sizeof( int ) );
-    *two = 2;
-    ret_value = tree_insert( tree, path, two, 1, insert );
-
-    assert_ptr_equal( two, ret_value );
-
-    path = "a.b.d";
-    int *three = test_malloc( sizeof( int ) );
-    *three = 3;
-    ret_value = tree_insert( tree, path, three, 1, insert );
-
-    assert_ptr_equal( three, ret_value );
-
-    DblLinkedList *list = tree_to_list( tree );
-
-    assert_int_equal( 5, dbllist_size( list ) );
-
-    assert_int_equal( -1, *( (int * ) ( (TNode *) ( dbllist_head(list)->data ) )->data ) );
-    assert_int_equal( 0, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->data ) )->data ) );
-    assert_int_equal( 1, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->next->data ) )->data ) );
-    assert_int_equal( 3, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->next->next->data ) )->data ) );
-    assert_int_equal( 2, *( (int * ) ( (TNode *) ( dbllist_head(list)->next->next->next->next->data ) )->data ) );
-
-    // Remove whole tree.
-    mem_free( list );
-    tree_remove( tree, NULL, clr_data );
-    test_free( root );
-    tree->root = NULL;
-
-    return;
+    return new_tnode;
 }
 
-static void clr(void **state) {
+static char* get_tnode_name( tnode_t* tnode ) {
+    return tnode->name;
+}
+
+static int get_tnode_int_value( tnode_t* tnode ) {
+    return *( (int *) tnode->data );
+}
+
+static void free_int( void *data ) {
+    if ( data ) {
+        mem_free( data );
+    }
+}
+
+// *************
+// tree_insert()
+// *************
+
+// UC: User inserts the root node
+static void insert_root( void **state ) {
+    tnode_t* new_tnode_0 = new_tnode( NULL, 0 );
+    tree_t* empty_tree = setup_empty_tree( (tree_test_t*) *state );
+    // ********** API Call **********
+    tree_insert( empty_tree, empty_tree->root, new_tnode_0 );
+    // ********** Verify **********
+    assert_ptr_equal( new_tnode_0, empty_tree->root );
+    assert_null( get_tnode_name( new_tnode_0 ) );
+    assert_int_equal( 0, get_tnode_int_value( new_tnode_0 ) );
+    // Clean-up.
+    dbllist_free( new_tnode_0->children );
+    test_free( new_tnode_0->data );
+    test_free( new_tnode_0->name );
+    test_free( new_tnode_0 );
+    test_free( empty_tree );
+}
+
+// UC: User inserts a new child
+static void insert_child( void **state ) {
+    tnode_t* root = new_tnode( NULL, 0 );
+    tnode_t* new_tnode_1 = new_tnode( NULL, 1 );
+    tree_t* tree = setup_tree_with_root( (tree_test_t*) *state, root );
+    // ********** API Call **********
+    tree_insert( tree, tree->root, new_tnode_1 );
+    // ********** Verify **********
+    tnode_t* child = dbllist_head( tree->root->children )->data;
+    assert_ptr_equal( new_tnode_1, child );
+    assert_null( get_tnode_name( child ) );
+    assert_int_equal( 1, get_tnode_int_value( child ) );
+    // Clean-up.
+    test_free( new_tnode_1->data );
+    test_free( new_tnode_1->name );
+    dbllist_remove( new_tnode_1->children, free_int );
+    dbllist_free( new_tnode_1->children );
+    test_free( root->data );
+    test_free( root->name );
+    dbllist_remove( root->children, free_int );
+    dbllist_free( root->children );
+    test_free( root );
+    test_free( tree );
+}
+
+// UC: User inserts two children
+static void insert_two_children( void **state ) {
+    tnode_t* root = new_tnode( NULL, 0 );
+    tnode_t* new_tnode_1 = new_tnode( NULL, 1 );
+    tnode_t* new_tnode_2 = new_tnode( NULL, 2 );
+    tree_t* tree = setup_tree_with_root( (tree_test_t*) *state, root );
+    // ********** API Call **********
+    tree_insert( tree, tree->root, new_tnode_1 );
+    tree_insert( tree, tree->root, new_tnode_2 );
+    // ********** Verify **********
+    tnode_t* head = dbllist_head( tree->root->children )->data;
+    assert_ptr_equal( new_tnode_1, head );
+    assert_null( get_tnode_name( head ) );
+    assert_int_equal( 1, get_tnode_int_value( head ) );
+    tnode_t* tail = dbllist_tail( tree->root->children )->data;
+    assert_ptr_equal( new_tnode_2, tail );
+    assert_null( get_tnode_name( tail ) );
+    assert_int_equal( 2, get_tnode_int_value( tail ) );
+    // Clean-up.
+    test_free( new_tnode_1->data );
+    test_free( new_tnode_1->name );
+    dbllist_remove( new_tnode_1->children, free_int );
+    dbllist_free( new_tnode_1->children );
+    test_free( new_tnode_2->data );
+    test_free( new_tnode_2->name );
+    dbllist_remove( new_tnode_2->children, free_int );
+    dbllist_free( new_tnode_2->children );
+    test_free( root->data );
+    test_free( root->name );
+    dbllist_remove( root->children, free_int );
+    dbllist_free( root->children );
+    test_free( root );
+    test_free( tree );
+}
+
+// *************
+// tree_remove()
+// *************
+
+// UC: User removes an empty tree
+static void remove_empty_tree( void **state ) {
+    tree_t* empty_tree = setup_empty_tree( (tree_test_t*) *state );
+    // ********** API Call **********
+    tree_remove( empty_tree, NULL, free_int );
+    // ********** Verify **********
+    assert_null( empty_tree->root );
+    // Clean-up.
+    test_free( empty_tree );
+}
+
+// UC: User removes a root only tree
+static void remove_root_only_tree( void **state ) {
+    tnode_t* root = new_tnode( NULL, 0 );
+    tree_t* tree = setup_tree_with_root( (tree_test_t*) *state, root );
+    // ********** API Call **********
+    tree_remove( tree, root, free_int );
+    // ********** Verify **********
+    assert_null( tree->root );
+    // Clean-up.
+    test_free( tree );
+}
+
+// UC: User removes the only child from the node
+static void remove_only_child( void **state ) {
+    tnode_t* root = new_tnode( NULL, 0 );
+    tnode_t* new_tnode_1 = new_tnode( NULL, 1 );
+    tree_t* tree = setup_tree_with_root( (tree_test_t*) *state, root );
+    tree_insert( tree, tree->root, new_tnode_1 );
+    // ********** Verify the set-up **********
+    assert_int_equal( 1, dbllist_size( root->children ) );
+    assert_ptr_equal( new_tnode_1, dbllist_tail( root->children )->data );
+    // ********** API Call **********
+    tree_remove( tree, new_tnode_1, free_int );
+    // ********** Verify **********
+    assert_null( root->children );
+    // Clean-up.
+    test_free( root->data );
+    test_free( root->name );
+    test_free( root );
+    test_free( tree );
+}
+
+// UC: User removes one node from the node that has multiple children
+static void remove_one_of_two_nodes( void **state ) {
+    tnode_t* root = new_tnode( NULL, 0 );
+    tnode_t* new_tnode_1 = new_tnode( NULL, 1 );
+    tnode_t* new_tnode_2 = new_tnode( NULL, 2 );
+    tree_t* tree = setup_tree_with_root( (tree_test_t*) *state, root );
+    tree_insert( tree, tree->root, new_tnode_1 );
+    tree_insert( tree, tree->root, new_tnode_2 );
+    // ********** Verify the set-up **********
+    assert_int_equal( 2, dbllist_size( root->children ) );
+    assert_ptr_equal( new_tnode_2, dbllist_tail( root->children )->data );
+    // ********** API Call **********
+    tree_remove( tree, new_tnode_2, free_int );
+    // ********** Verify **********
+    assert_int_equal( 1, dbllist_size( root->children ) );
+    assert_ptr_equal( new_tnode_1, dbllist_head( root->children )->data );
+    // Clean-up.
+    test_free( new_tnode_1->data );
+    test_free( new_tnode_1->name );
+    dbllist_remove( new_tnode_1->children, free_int );
+    dbllist_free( new_tnode_1->children );
+    test_free( root->data );
+    test_free( root->name );
+    dbllist_remove( root->children, free_int );
+    dbllist_free( root->children );
+    test_free( root );
+    test_free( tree );
+}
+
+// UC: User removes a subtree
+static void remove_subtree( void **state ) {
+    tnode_t* root = new_tnode( NULL, 0 );
+    tnode_t* new_tnode_1 = new_tnode( NULL, 1 );
+    tnode_t* new_tnode_2 = new_tnode( NULL, 2 );
+    tnode_t* new_tnode_3 = new_tnode( NULL, 3 );
+    tnode_t* new_tnode_4 = new_tnode( NULL, 4 );
+    tree_t* tree = setup_tree_with_root( (tree_test_t*) *state, root );
+    tree_insert( tree, tree->root, new_tnode_1 );
+    tree_insert( tree, tree->root, new_tnode_2 );
+    tree_insert( tree, new_tnode_2, new_tnode_3 );
+    tree_insert( tree, new_tnode_2, new_tnode_4 );
+    // ********** Verify the set-up **********
+    assert_int_equal( 2, dbllist_size( root->children ) );
+    assert_int_equal( 2, dbllist_size( new_tnode_2->children ) );
+    assert_ptr_equal( new_tnode_3, dbllist_head( new_tnode_2->children )->data );
+    assert_ptr_equal( new_tnode_4, dbllist_tail( new_tnode_2->children )->data );
+    // ********** API Call **********
+    tree_remove( tree, new_tnode_2, free_int );
+    // ********** Verify **********
+    assert_int_equal( 1, dbllist_size( root->children ) );
+    assert_ptr_equal( new_tnode_1, dbllist_head( root->children )->data );
+    // Clean-up.
+    test_free( new_tnode_1->data );
+    test_free( new_tnode_1->name );
+    dbllist_remove( new_tnode_1->children, free_int );
+    dbllist_free( new_tnode_1->children );
+    test_free( root->data );
+    test_free( root->name );
+    dbllist_remove( root->children, free_int );
+    dbllist_free( root->children );
+    test_free( root );
+    test_free( tree );
+}
+
+// UC: User removes a whole tree that has three levels
+static void remove_tree( void **state ) {
+    tnode_t* root = new_tnode( NULL, 0 );
+    tnode_t* new_tnode_1 = new_tnode( NULL, 1 );
+    tnode_t* new_tnode_2 = new_tnode( NULL, 2 );
+    tnode_t* new_tnode_3 = new_tnode( NULL, 3 );
+    tnode_t* new_tnode_4 = new_tnode( NULL, 4 );
+    tree_t* tree = setup_tree_with_root( (tree_test_t*) *state, root );
+    tree_insert( tree, tree->root, new_tnode_1 );
+    tree_insert( tree, tree->root, new_tnode_2 );
+    tree_insert( tree, new_tnode_2, new_tnode_3 );
+    tree_insert( tree, new_tnode_2, new_tnode_4 );
+    // ********** API Call **********
+    tree_remove( tree, root, free_int );
+    // ********** Verify **********
+    assert_null( tree->root );
+    // Clean-up.
+    test_free( tree );
 }
 
 int tree_test(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test_setup_teardown( parse_ok_path_1, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( parse_ok_path_2, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( parse_ok_path_3, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( parse_nok_path_1, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( parse_nok_path_2, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( parse_nok_path_3, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( parse_deep_tree, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( parse_tree_too_deep, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( insert_node_into_empty_tree, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( insert_node_into_nonempty_tree, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( insert_two_nodes, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( find_a_node_from_2nd_level, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( remove_tree, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( remove_subtree, tree_setup, tree_teardown ),
-        cmocka_unit_test_setup_teardown( tree_2_list, tree_setup, tree_teardown ),
+        cmocka_unit_test_setup_teardown( insert_root, setup, teardown ),
+        cmocka_unit_test_setup_teardown( insert_child, setup, teardown ),
+        cmocka_unit_test_setup_teardown( insert_two_children, setup, teardown ),
+        cmocka_unit_test_setup_teardown( remove_empty_tree, setup, teardown ),
+        cmocka_unit_test_setup_teardown( remove_root_only_tree, setup, teardown ),
+        cmocka_unit_test_setup_teardown( remove_only_child, setup, teardown ),
+        cmocka_unit_test_setup_teardown( remove_one_of_two_nodes, setup, teardown ),
+        cmocka_unit_test_setup_teardown( remove_subtree, setup, teardown ),
+        cmocka_unit_test_setup_teardown( remove_tree, setup, teardown ),
     };
 
     return cmocka_run_group_tests( tests, NULL, NULL );
