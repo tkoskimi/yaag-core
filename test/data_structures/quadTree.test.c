@@ -468,6 +468,8 @@ static void insert_node_to_empty_tree_parent_on(void **state) {
     // API Call
     tnode_t* node = qtree_insert( q, 0, 0, 1, zero );
     // Verification
+    assert_non_null( node );
+    assert_non_null( q->tree->root );
     // Postcondition
     tnode_t* node_0 = qtree_get_node( q, 0, 0 );
     assert_ptr_equal( node, node_0 );
