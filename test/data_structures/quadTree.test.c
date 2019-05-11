@@ -22,6 +22,13 @@ static void clr_mem_data( void *data ) {
     }
 }
 
+static void clr_qtree_data( void *data ) {
+    if ( data ) {
+        dbllist_remove( ( dbllist_t* ) data, clr_mem_data );
+        mem_free( ( dbllist_t* ) data );
+    }
+}
+
 static tree_t* setup_tree_with_root( qtest_t* qt, tnode_t* root ) {
     qt->q->tree = tree_new();
     qt->q->tree->root = root;
@@ -441,10 +448,46 @@ static void branch_2_to_nonempty_tree(void **state) {
     qtree_free( q );     
 }
 
-static void insert_node_to_empty_tree(void **state) {
+static void insert_node_to_empty_tree_parent_off(void **state) {
+    qtree_t* q = qtree_new();
+    int* zero = (int*) mem_malloc( sizeof( int ) );
+    // API Call 1
+    tnode_t* node = qtree_insert( q, 0, 0x0, 0, zero );
+    // Verification
+    assert_null( node );
+    assert_null( q->tree->root );
+    // Clean-up
+    mem_free( zero );
+    tree_remove( q->tree, q->tree->root, clr_qtree_data );
+    qtree_free( q );     
+}
+
+static void insert_node_to_empty_tree_parent_on(void **state) {
+    qtree_t* q = qtree_new();
+    int* zero = (int*) mem_malloc( sizeof( int ) );
     // API Call
+    qtree_insert( q, 0, 0x0, 1, zero );
     // Verification
     // Clean-up    
+    tree_remove( q->tree, q->tree->root, clr_qtree_data );
+    qtree_free( q );     
+}
+
+static void insert_root_parent_off(void **state) {
+    qtree_t* q = qtree_new();
+    tnode_t* root = tree_new_node( NULL, NULL, NULL, 0 );
+    q->tree->root = root;
+    int* zero = (int*) mem_malloc( sizeof( int ) );
+    *zero = 0;
+    // API Call
+    tnode_t* node = qtree_insert( q, 0, 0x0, 0, zero );
+    // Verification
+    assert_non_null( node );
+    assert_non_null( q->tree->root );
+    //assert_int_equal( 0, ( dbllist_head( (dbllist_t*) node->data ) )->data );
+    // Clean-up
+    tree_remove( q->tree, q->tree->root, clr_qtree_data );
+    qtree_free( q );     
 }
 
 static void insert_sibling(void **state) {
@@ -492,6 +535,9 @@ int qtree_test() {
         cmocka_unit_test_setup_teardown( branch_0_to_empty_tree, qtree_setup, qtree_teardown ),
         cmocka_unit_test_setup_teardown( branch_1_to_nonempty_tree, qtree_setup, qtree_teardown ),
         cmocka_unit_test_setup_teardown( branch_2_to_nonempty_tree, qtree_setup, qtree_teardown ),
+        cmocka_unit_test_setup_teardown( insert_node_to_empty_tree_parent_off, qtree_setup, qtree_teardown ),
+        cmocka_unit_test_setup_teardown( insert_node_to_empty_tree_parent_on, qtree_setup, qtree_teardown ),
+        cmocka_unit_test_setup_teardown( insert_root_parent_off, qtree_setup, qtree_teardown ),
     };
 
     return cmocka_run_group_tests( tests, NULL, NULL );

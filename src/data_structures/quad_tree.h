@@ -107,31 +107,69 @@ void qtree_free( qtree_t *q );
 // @see Test cases
 int qtree_point_index( qtree_t* qtree_t, unsigned int x0, unsigned int y0 );
 
-// Returns a path of the quadrant that contains both points, tl and br
+// Returns a level index where both indexes belong to
+//
+// @precondition q != NULL
+// @postcondition None
+// @param q The pointer to the tree
+// @param index_0 The index of the 1st quadrant
+// @param index_1 The index of the 2nd quadrant
+// @return Returns a path of the quadrant where both indexes belong to. For example, if
+//         index_0 == b10011100 and index_1 == b10010000, the returned value
+//         is 2
+unsigned int qtree_common_quad( qtree_t *q, int index_0, int index_1 );
+
+// Returns the node at the end of the branch
+//
+// @precondition q != NULL
+// @precondition q->tree != NULL
+// @param q The pointer to the tree where the branch is created to
+// @param num_of_levels The number of levels to be created
+// @param index The index of the branch
+// @return The pointer to the node at the end of the branch, or NULL
+tnode_t* qtree_get_node( qtree_t *q, unsigned int num_of_levels, int index );
+
+// Creates a branch that has the given index into the given tree
+//
+// @precondition q != NULL
+// @precondition q->tree != NULL
+// @precondition 0 <= num_of_levels <= q->depth
+// @postcondition qtree_get_node( q, num_of_levels, index ) != NULL after qtree_branch( q, index )
+// @param q The pointer to the tree where the branch is created to
+// @param num_of_levels The number of levels to be created
+// @param index The index of the branch
+// @return The pointer to the last node of the branch
+tnode_t* qtree_branch( qtree_t *q, unsigned int num_of_levels, int index );
+
+// Inserts a data to the node at the end of the given branch
+//
+// @precondition q != NULL
+// @postcondition qtree_get_node( q, num_of_levels, index ) != NULL after
+//                qtree_insert( q, num_of_levels, index, 1, NULL )
+// @param q The pointer to the tree where the branch is created to
+// @param num_of_levels The level where the node is inserted to
+// @param index The index of the branch
+// @param parent Make parent nodes as needed (calls qtree_branch( a, num_of_levels, index ))
+// @param data The data that is added to the tree
+// @return The pointer to the inserted node of the branch, or NULL
+tnode_t* qtree_insert( qtree_t *q, unsigned int num_of_levels, int index, int parent, void *data );
+
+// [Depracated] Returns a path of the quadrant that contains both points, tl and br
 //
 // @param q The pointer to the quad structure.
 // @param index_tl The index of the quadrant that contains the tl.
 // @param index_br The index of the quadrant that contains the br.
 // @return The path, e.g. "00.01"; NULL if there is no quadrant that contains the
 //      tl and/or br.
+// @depracated
 char* qtree_node_path( qtree_t* q, int index_tl, int index_br );
 
-tnode_t* qtree_find2( qtree_t *q, int index );
-tnode_t* qtree_branch( qtree_t *q, unsigned int num_of_levels, int index );
-tnode_t* qtree_insert2( qtree_t *q, int index, tnode_t *tnode );
-
-
-
+// [Depracated] Splits the given path in parts
+//
+// @param path The path to be splitted. The format of the path is 'a.b', where
+//             '.' is the separator
+// @return The array of the strings, e.g., [ "a", "b" ]
+// @depracated
 char** qtree_split_path( char *path );
-tnode_t* qtree_find( tree_t *tree, char* path, dbllist_t **list );
-void* tree_tmp_insert( tree_t* tree, char* path, void* new_data, int parents, void* (*insert)( int, void*, void* ) );
-void _clean_up( char** names );
-void qtree_insert(
-        qtree_t* q, 
-        int x0,
-        int y0,
-        int x1,
-        int y1,
-        void* new_data,
-        void* (*insert)( int, void*, void* ) );
+
 #endif // _quadtree_
