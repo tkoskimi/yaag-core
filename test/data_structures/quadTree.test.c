@@ -452,7 +452,7 @@ static void insert_node_to_empty_tree_parent_off(void **state) {
     qtree_t* q = qtree_new();
     int* zero = (int*) mem_malloc( sizeof( int ) );
     // API Call 1
-    tnode_t* node = qtree_insert( q, 0, 0x0, 0, zero );
+    tnode_t* node = qtree_insert( q, 0, 0, 0, zero );
     // Verification
     assert_null( node );
     assert_null( q->tree->root );
@@ -466,8 +466,11 @@ static void insert_node_to_empty_tree_parent_on(void **state) {
     qtree_t* q = qtree_new();
     int* zero = (int*) mem_malloc( sizeof( int ) );
     // API Call
-    qtree_insert( q, 0, 0x0, 1, zero );
+    tnode_t* node = qtree_insert( q, 0, 0, 1, zero );
     // Verification
+    // Postcondition
+    tnode_t* node_0 = qtree_get_node( q, 0, 0 );
+    assert_ptr_equal( node, node_0 );
     // Clean-up    
     tree_remove( q->tree, q->tree->root, clr_qtree_data );
     qtree_free( q );     
@@ -480,10 +483,13 @@ static void insert_root_parent_off(void **state) {
     int* zero = (int*) mem_malloc( sizeof( int ) );
     *zero = 0;
     // API Call
-    tnode_t* node = qtree_insert( q, 0, 0x0, 0, zero );
+    tnode_t* node = qtree_insert( q, 0, 0, 0, zero );
     // Verification
     assert_non_null( node );
     assert_non_null( q->tree->root );
+    // Postcondition
+    tnode_t* node_0 = qtree_get_node( q, 0, 0 );
+    assert_ptr_equal( node, node_0 );
     //assert_int_equal( 0, ( dbllist_head( (dbllist_t*) node->data ) )->data );
     // Clean-up
     tree_remove( q->tree, q->tree->root, clr_qtree_data );
