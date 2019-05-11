@@ -23,6 +23,15 @@ void tree_free( tree_t* tree ) {
     mem_free( tree );
 }
 
+tnode_t* tree_new_node( tnode_t* parent, char* name, void* data, int children ) {
+    tnode_t* node = ( tnode_t* ) mem_malloc( sizeof( tnode_t ) );
+    node->parent = parent;
+    node->name = name;
+    node->data = data;
+    node->children =  children ? dbllist_new() : NULL;
+    return node;
+}
+
 // @param tree The tree where the node is added to
 // @param parent The parent node for the inserted node
 // @param new_node The node to be inserted as a child for the parent

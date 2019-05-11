@@ -111,8 +111,13 @@ typedef struct {
     tnode_t *root;
 } tree_t;
 
+// Creates a new tree
 tree_t* tree_new();
 
+// Creates and initializes a new node
+tnode_t* tree_new_node( tnode_t* parent, char* name, void* data, int children );
+
+// Releases the tree
 void tree_free( tree_t* tree );
 
 // Inserts a new node as a child of the parent
