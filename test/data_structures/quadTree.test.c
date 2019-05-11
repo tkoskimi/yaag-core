@@ -12,9 +12,39 @@ typedef struct {
 } qtest_t;
 
 
-//
+//  ****************************************
+//  Misc functions
+//  ****************************************
+
+static void clr_mem_data( void *data ) {
+    if ( data ) {
+        mem_free( data );
+    }
+}
+
+static tree_t* setup_tree_with_root( qtest_t* qt, tnode_t* root ) {
+    qt->q->tree = tree_new();
+    qt->q->tree->root = root;
+    return qt->q->tree;
+}
+
+static tnode_t* new_tnode( char* name, int value ) {
+    tnode_t* new_tnode = ( tnode_t* ) test_malloc( sizeof( tnode_t ) );
+
+    int* data = ( int* ) test_malloc( sizeof( int ) );
+    *data = value;
+
+    new_tnode->name = name;
+    new_tnode->data = data;
+    new_tnode->parent = NULL;
+    new_tnode->children = dbllist_new();
+
+    return new_tnode;
+}
+
+//  ****************************************
 //   Test Fixtures
-//
+//  ****************************************
 
 static int qtree_setup(void **state) {
     qtest_t *test_struct = test_malloc( sizeof( qtest_t ) );
@@ -347,6 +377,98 @@ static void parse_tree_too_deep(void **state) {
     assert_null( strs );
 }
 
+static void branch_0_to_empty_tree(void **state) {
+    qtree_t* q = qtree_new();
+    // API Call
+    qtree_branch( q, 0, 0x0 );
+    // Verification
+    assert_non_null( q->tree->root );
+    // Clean-up    
+    tree_remove( q->tree, q->tree->root, clr_mem_data );
+    qtree_free( q );     
+}
+static void branch_1_to_nonempty_tree(void **state) {
+    qtree_t* q = qtree_new();
+    tnode_t* root = tree_new_node( NULL, NULL, NULL, 0 );
+    q->tree->root = root;
+    // API Call
+    //             <------- 10 -------->
+    //                   <-------------|
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |0|0|0|0|0|1|0|0|0|0|0|0|0|0|0|0|
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |0|0|0|0|0|0|1|0|0|0|0|0|0|0|0|0|
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // =================================
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |0|0|0|0|0|0|0|0|0|0|1|0|0|1|0|0| 0x24
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    tnode_t* node = qtree_branch( q, 1, 0x24 );
+    // Verification
+    assert_int_equal( 4, dbllist_size( root->children ) );
+    assert_null( node->children );
+    assert_ptr_equal( node, ( tnode_t*) dbllist_tail( root->children )->prev->data ); 
+    // Clean-up    
+    tree_remove( q->tree, q->tree->root, clr_mem_data );
+    qtree_free( q );     
+}
+
+static void branch_2_to_nonempty_tree(void **state) {
+    qtree_t* q = qtree_new();
+    tnode_t* root = tree_new_node( NULL, NULL, NULL, 0 );
+    q->tree->root = root;
+    // API Call
+    //             <------- 10 -------->
+    //                   <-------------|
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |0|0|0|0|0|1|0|0|0|0|0|0|0|0|0|0|
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |0|0|0|0|0|0|1|0|0|0|0|0|0|0|0|0|
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // =================================
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |0|0|0|0|0|0|0|0|0|0|1|0|0|1|0|0| 0x24
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    tnode_t* node = qtree_branch( q, 2, 0x24 );
+    // Verification
+    tnode_t* dblnode1 = ( tnode_t* ) dbllist_tail( root->children )->prev->data;
+    tnode_t* dblnode2 = ( tnode_t* ) dbllist_head( dblnode1->children )->next->data;
+    assert_int_equal( 4, dbllist_size( dblnode1->children ) );
+    assert_null( dblnode2->children );
+    assert_ptr_equal( node, dblnode2 ); 
+    // Clean-up    
+    tree_remove( q->tree, q->tree->root, clr_mem_data );
+    qtree_free( q );     
+}
+
+static void insert_node_to_empty_tree(void **state) {
+    // API Call
+    // Verification
+    // Clean-up    
+}
+
+static void insert_sibling(void **state) {
+
+}
+
+static void insert_child(void **state) {
+
+}
+
+static void insert_child_in_a_nonexisting_branch(void **state) {
+
+}
+
+static void make_a_list_from_empty_tree(void **state) {
+    // API Call
+    // Verification
+    // Clean-up    
+}
+
+static void make_a_list_from_root_and_children(void **state) {
+
+}
+
 int qtree_test() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test_setup_teardown( bit_mask, qtree_setup, qtree_teardown ),
@@ -367,6 +489,9 @@ int qtree_test() {
         cmocka_unit_test_setup_teardown( parse_name_too_long, qtree_setup, qtree_teardown ),
         cmocka_unit_test_setup_teardown( parse_tree_deep, qtree_setup, qtree_teardown ),
         cmocka_unit_test_setup_teardown( parse_tree_too_deep, qtree_setup, qtree_teardown ),
+        cmocka_unit_test_setup_teardown( branch_0_to_empty_tree, qtree_setup, qtree_teardown ),
+        cmocka_unit_test_setup_teardown( branch_1_to_nonempty_tree, qtree_setup, qtree_teardown ),
+        cmocka_unit_test_setup_teardown( branch_2_to_nonempty_tree, qtree_setup, qtree_teardown ),
     };
 
     return cmocka_run_group_tests( tests, NULL, NULL );

@@ -10,7 +10,6 @@
 #include <string.h>
 
 #include "../defs.h"
-#include "../game.h"
 #include "../mem.h"
 #include "./doublyLinkedList.h"
 #include "./quad_tree.h"
@@ -28,6 +27,28 @@ inline unsigned int _bit_mask_011(unsigned int n) {
 inline unsigned int _bit_mask_010(unsigned int m, unsigned int n) {
     return ( m == n ) ? 0 : (((unsigned) -1 >> (32 - (n))) & ~((1U << (m)) - 1));
 } 
+
+static dbllist_t* _add_4_children( tnode_t* parent, dbllist_t* children ) {
+    for ( int i = 0; i < 4; i++ ) {
+        tnode_t* node = tree_new_node( parent, NULL, NULL, 0 );
+        dbllist_push_to_end( children, node );
+    }
+}
+
+static tnode_t* _get_child( dbllist_t* children, int index ) {
+    assert ( index >= 0 && QUAD_ILLEGALPARAM );
+    assert ( index <= 4 && QUAD_ILLEGALPARAM );
+
+    dblnode_t* node = ( dblnode_t* ) dbllist_head( children );
+    for ( int i = 0; i < 4; i++ ) {
+        if ( i == index ) {
+            return ( tnode_t* ) node->data;
+        }
+        node = node->next;
+    }
+    // We should never be here!
+    assert ( NULL );
+}
 
 qtree_t* qtree_new() {
     qtree_t *q = (qtree_t *) mem_malloc( sizeof( qtree_t ) );
@@ -107,6 +128,69 @@ int qtree_point_index( qtree_t* q, unsigned int x0, unsigned int y0 ) {
     return index;
 }
 
+// Searches a node from a given quad tree
+//
+// @precondition q != NULL
+// @postcondition None
+// @param q The pointer to the tree from where the node is searched from
+// @param index The index of the node
+// @return The pointer to the node, or NULL
+tnode_t* qtree_find2( qtree_t *q, int index ) {
+
+}
+
+// Creates a branch to the given tree
+//
+// @precondition q != NULL
+// @precondition q->tree != NULL
+// @precondition 0 <= num_of_levels <= q->depth
+// @postcondition qtree_find( q, index ) != NULL after qtree_branch( q, index )
+// @param q The pointer to the tree where the branch is created to
+// @param num_of_levels The number of levels to be created
+// @param index The index of the branch
+// @return The pointer to the last node of the branch
+tnode_t* qtree_branch( qtree_t *q, unsigned int num_of_levels, int index ) {
+    assert( q && QUAD_NOQTREE );
+    assert( q->tree && QUAD_NOTREE );
+    assert( num_of_levels <= q->depth && QUAD_TOODEEP );
+
+    tnode_t* curr_node = q->tree->root;
+
+    // Handle special case.
+    if ( curr_node == NULL ) {
+        curr_node = tree_new_node( NULL, NULL, NULL, 0 );
+        q->tree->root = curr_node;
+    }
+
+    for ( unsigned int i = 0; i < num_of_levels; i++ ) {
+        // The bit index of the current level.
+        int n = 2 * ( q->depth - i );
+        // The index of the node in the current level.
+        int k = ( index & _bit_mask_010( n - 2, n ) ) >> ( n - 2 );
+        // Update the current node.
+        if ( !curr_node->children ) {
+            curr_node->children = dbllist_new();
+            _add_4_children( curr_node, curr_node->children );
+        }
+        curr_node = _get_child( curr_node->children, k );
+    }
+
+    return curr_node;
+}
+
+// Inserts a node to the given node
+//
+// @precondition q != NULL
+// @postcondition qtree_find( q, index ) == node after qtree_insert( q, index, node )
+// @param q The pointer to the tree where the branch is created to
+// @param index The index of the branch
+// @param tnode The node that is added to the tree
+// @return The pointer to the last node of the branch
+tnode_t* qtree_insert2( qtree_t *q, int index, tnode_t *tnode ) {
+
+}
+
+// Depracated
 char* qtree_node_path( qtree_t* q, int index_tl, int index_br ) {
     if ( index_tl == COORDINATE_OUSIDE || index_br == COORDINATE_OUSIDE ) {
         return NO_QUAD;
@@ -139,6 +223,7 @@ char* qtree_node_path( qtree_t* q, int index_tl, int index_br ) {
     return name;
 }
 
+// Depracated
 char** qtree_split_path( char *path ) {
 
     // Special case. For the root, the path == NULL.

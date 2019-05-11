@@ -19,6 +19,11 @@
 #include "./tree.h"
 
 // Messages for the diagnostics
+#define QUAD_NOQTREE "Q-tree does not exist"
+#define QUAD_NOTREE "Tree does not exist"
+#define QUAD_NOROOT "The root does not exist"
+#define QUAD_ILLEGALPARAM "Illegal parameter"
+#define QUAD_TOODEEP "Number of levels exceeds the depth of the tree"
 #define QUAD_TOO_BIG "Box is bigger than the region"
 #define QUAD_NONPOSITIVE_DIMENSIONS "Dimenstions must be positive"
 #define QUAD_BOX_POS_ORIENTATION "Bounding box must have negative orientation"
@@ -110,6 +115,13 @@ int qtree_point_index( qtree_t* qtree_t, unsigned int x0, unsigned int y0 );
 // @return The path, e.g. "00.01"; NULL if there is no quadrant that contains the
 //      tl and/or br.
 char* qtree_node_path( qtree_t* q, int index_tl, int index_br );
+
+tnode_t* qtree_find2( qtree_t *q, int index );
+tnode_t* qtree_branch( qtree_t *q, unsigned int num_of_levels, int index );
+tnode_t* qtree_insert2( qtree_t *q, int index, tnode_t *tnode );
+
+
+
 char** qtree_split_path( char *path );
 tnode_t* qtree_find( tree_t *tree, char* path, dbllist_t **list );
 void* tree_tmp_insert( tree_t* tree, char* path, void* new_data, int parents, void* (*insert)( int, void*, void* ) );
