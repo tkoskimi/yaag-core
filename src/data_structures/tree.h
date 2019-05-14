@@ -3,58 +3,6 @@
 // A tree is a well-known data structure that can be defined recursively
 // with a node and its children.
 //
-// Notes
-// -----
-// The tree and list data structures are not symmetrical:
-//
-//    1. Identity of the nodes. In lists, the identity of the node is based on
-//       the data of the node, whereas the nodes have names in trees. There is
-//       a reason for this: The name of the node is a bit redundant information
-//       when handling lists, because either you have to walk through the list
-//       anyway or keep the list in, e.g., alphabetical order and implement a
-//       bit more complex search than a simple walkthrough.
-//
-// Usage examples
-// --------------
-//
-// Create a new tree:
-//
-//    ...
-//    TTree* tree = tree_new();
-//    ...
-//
-// Split a path:
-//
-//    ...
-//    char *path = "a.b.c";
-//    char** strs = tree_split_path( path );
-//    ...
-//
-// Insert a node:
-//
-//    ...
-//    ret_value = tree_insert( tree, "a.b", data, 1 );
-//    ...
-//
-// Find a node:
-//
-//    ...
-//    TNode *tree_node = NULL;
-//    dbllist_t *list = NULL;
-//    tree_node = tree_find( tree, "a.b", &list );
-//    ...
-//
-// Delete a subtree:
-//
-//    ...
-//    static void  free_data(void *data) {
-//       // Release the data for example
-//    }
-//
-//    ...
-//    tree_remove( tree, "a", free_data );
-//    ...
-//
 // @author Tuomas Koskimies
 
 #ifndef _tree_
@@ -87,17 +35,6 @@
 #define ERROR_TREE_IS_EMPTY         -30
 #define ERROR_NO_PARENT             -35
 #define ERROR_NOT_FOUND             -45
-
-typedef struct {
-    struct TNode* parent;
-    char *name;
-    void *data;
-    dbllist_t *children;
-} TNode;
-
-typedef struct {
-    TNode *root;
-} TTree;
 
 typedef struct tnode_t {
     obj_t* obj;
