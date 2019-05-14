@@ -47,6 +47,13 @@ void dbllist_free( dbllist_t* list );
 // @return The destination list
 dbllist_t* dbllist_append( dbllist_t* dst, dbllist_t* src );
 
+// Creates a new list by joining two lists
+//
+// @param lst_0 The pointer to the 1st list
+// @param lst_1 The pointer to the 2nd list
+// @return The new list, ( lst_0, lst_1 )
+dbllist_t* dbllist_join( dbllist_t* lst_0, dbllist_t* lst_1 );
+
 // Inserts a new node at the beginning of the list
 //
 // @param list The pointer to the list where the node is pushed into

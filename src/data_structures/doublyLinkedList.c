@@ -37,6 +37,13 @@ dbllist_t* dbllist_append( dbllist_t* dst, dbllist_t* src ) {
     return dst;
 }
 
+dbllist_t* dbllist_join( dbllist_t* lst_0, dbllist_t* lst_1 ) {
+    dbllist_t *new_lst = dbllist_new();
+    dbllist_append( new_lst, lst_0 );
+    dbllist_append( new_lst, lst_1 );
+    return new_lst;
+}
+
 dblnode_t* dbllist_push( dbllist_t* list, void* new_data ) {
     assert( new_data != NULL && DBLL_NEWNULL );
 
