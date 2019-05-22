@@ -259,14 +259,14 @@ tnode_t* qtree_insert( qtree_t *q, unsigned int num_of_levels, int index, int pa
     return tnode;
 }
 
-// [Depracated] Returns a path of the quadrant that contains both points, tl and br
+// [Deprecated] Returns a path of the quadrant that contains both points, tl and br
 //
 // @param q The pointer to the quad structure.
 // @param index_tl The index of the quadrant that contains the tl.
 // @param index_br The index of the quadrant that contains the br.
 // @return The path, e.g. "00.01"; NULL if there is no quadrant that contains the
 //      tl and/or br.
-// @depracated
+// @deprecated
 char* qtree_node_path( qtree_t* q, int index_tl, int index_br ) {
     if ( index_tl == COORDINATE_OUSIDE || index_br == COORDINATE_OUSIDE ) {
         return NO_QUAD;

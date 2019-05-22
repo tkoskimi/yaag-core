@@ -15,7 +15,6 @@
 #include <limits.h>
 
 #include "./doublyLinkedList.h"
-#include "../game.h"
 #include "./tree.h"
 
 // Messages for the diagnostics
@@ -154,22 +153,32 @@ tnode_t* qtree_branch( qtree_t *q, unsigned int num_of_levels, int index );
 // @return The pointer to the inserted node of the branch, or NULL
 tnode_t* qtree_insert( qtree_t *q, unsigned int num_of_levels, int index, int parent, void *data );
 
-// [Depracated] Returns a path of the quadrant that contains both points, tl and br
+// Implements a general traverse functionality for the given subtree
+//
+// @precondition root != NULL
+// @postcondition The callback may change the content of the tree
+// @param root The root of the subtree that is being traversed
+// @param f The callback function. It has two parameters. The first one is the
+//          current node and the second one is a list that is collected from
+//          the subtree.
+void qtree_dft( tnode_t* root, dbllist_t* (*_f)( tnode_t* tnode, dbllist_t* lst ) );
+
+// [Deprecated] Returns a path of the quadrant that contains both points, tl and br
 //
 // @param q The pointer to the quad structure.
 // @param index_tl The index of the quadrant that contains the tl.
 // @param index_br The index of the quadrant that contains the br.
 // @return The path, e.g. "00.01"; NULL if there is no quadrant that contains the
 //      tl and/or br.
-// @depracated
+// @deprecated
 char* qtree_node_path( qtree_t* q, int index_tl, int index_br );
 
-// [Depracated] Splits the given path in parts
+// [Deprecated] Splits the given path in parts
 //
 // @param path The path to be splitted. The format of the path is 'a.b', where
 //             '.' is the separator
 // @return The array of the strings, e.g., [ "a", "b" ]
-// @depracated
+// @deprecated
 char** qtree_split_path( char *path );
 
 #endif // _quadtree_
