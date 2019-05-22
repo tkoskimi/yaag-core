@@ -2,9 +2,11 @@
 #ifndef _game_
 #define _game_
 
+#include "obj.h"
 #include "./data_structures/doublyLinkedList.h"
 
-typedef struct {
+typedef struct game_obj_t {
+    struct obj_t* obj;
     int type;
     int x;
     int y;
@@ -14,7 +16,7 @@ typedef struct {
     dbllist_t *events;
     int (*update)( int dt );
     void *data;
-} GameObject;
+} game_obj_t;
 
 // Initializes this game
 //
