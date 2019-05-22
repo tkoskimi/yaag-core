@@ -11,6 +11,7 @@
 #include "./data_structures/quadTree.test.h"
 #include "./data_structures/tree.test.h"
 #include "./loaders/lvl_loader.test.h"
+#include "./physics.test.h"
 
 int main(int argc, char* argv[]) {
     opterr = 0;
@@ -44,5 +45,6 @@ int main(int argc, char* argv[]) {
 	dbll_test();
     tree_test();
     qtree_test();
+    physics_test();
 	//lvl_loader_test(dirvalue);
 }
